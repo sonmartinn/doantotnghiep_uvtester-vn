@@ -1,26 +1,169 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* 1) Design tokens: sinh ra các class như bg-background, text-foreground, bg-primary, ... */
+@theme {
+  --color-background: hsl(220 25% 97%);
+  --color-foreground: hsl(228 40% 15%);
+
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(228 40% 15%);
+
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(228 40% 15%);
+
+  --color-primary: hsl(245 75% 60%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-primary-glow: hsl(250 57.19 37.57);
+
+  --color-secondary: hsl(210 100% 55%);
+  --color-secondary-foreground: hsl(0 0% 100%);
+
+  --color-muted: hsl(220 20% 92%);
+  --color-muted-foreground: hsl(228 15% 45%);
+
+  --color-accent: hsl(280 70% 65%);
+  --color-accent-foreground: hsl(0 0% 100%);
+
+  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+
+  --color-border: hsl(220 15% 88%);
+  --color-input: hsl(220 15% 88%);
+  --color-ring: hsl(245 75% 60%);
+
+  --radius: 0.75rem; /* dùng qua class tiện ích tùy chỉnh ở dưới */
+
+  --gradient-hero: 135deg, hsl(245 75% 60%), hsl(280 70% 65%);
+  --gradient-card: 180deg, hsl(0 0% 100%), hsl(220 25% 98%);
+  --shadow-soft: 0 4px 20px -2px hsl(245 75% 60% / 0.15);
+  --shadow-glow: 0 0 40px hsl(245 75% 60% / 0.25);
+
+  --font-sans:
+    Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* 2) Override tokens theo dark mode (không sinh class mới, chỉ đổi giá trị) */
+@layer theme {
+  @variant dark {
+    :root {
+      --color-background: hsl(228 40% 8%);
+      --color-foreground: hsl(220 25% 95%);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+      --color-card: hsl(228 35% 12%);
+      --color-card-foreground: hsl(220 25% 95%);
+
+      --color-popover: hsl(228 35% 12%);
+      --color-popover-foreground: hsl(220 25% 95%);
+
+      --color-primary: hsl(245 75% 65%);
+      --color-primary-foreground: hsl(0 0% 100%);
+      --color-primary-glow: hsl(250 85% 75%);
+
+      --color-secondary: hsl(210 100% 60%);
+      --color-secondary-foreground: hsl(0 0% 100%);
+
+      --color-muted: hsl(228 25% 18%);
+      --color-muted-foreground: hsl(220 15% 60%);
+
+      --color-accent: hsl(280 70% 70%);
+      --color-accent-foreground: hsl(0 0% 100%);
+
+      --color-destructive: hsl(0 62.8% 50.6%);
+      --color-destructive-foreground: hsl(0 0% 100%);
+
+      --color-border: hsl(228 25% 20%);
+      --color-input: hsl(228 25% 20%);
+      --color-ring: hsl(245 75% 65%);
+
+      --gradient-hero: 135deg, hsl(245 75% 55%), hsl(280 70% 60%);
+      --gradient-card: 180deg, hsl(228 35% 12%), hsl(228 35% 10%);
+      --shadow-soft: 0 4px 20px -2px hsl(245 75% 65% / 0.3);
+      --shadow-glow: 0 0 40px hsl(245 75% 65% / 0.35);
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* 3) Base: áp dụng style nền (border mặc định, body font/màu nền) */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    @apply border-border; /* dùng token --color-border */
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    /* font-family: var(--font-sans); */
+  }
+}
+
+/* 4) Components: giữ app-specific styles */
+@layer components {
+  /* #root {
+    @apply mx-auto max-w-[1280px] p-8 text-center;
+  } */
+
+  .logo {
+    @apply h-24 p-6 transition-[filter] duration-300 will-change-auto;
+  }
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 4) Khai báo utility đúng chuẩn v4 */
+@utility animate-logo-spin {
+  animation: logo-spin 20s linear infinite;
+}
+
+/* 5) Dùng @apply bên trong 1 layer (vd: utilities) */
+@layer utilities {
+  @media (prefers-reduced-motion: no-preference) {
+    a:nth-of-type(2) .logo {
+      @apply animate-logo-spin;
+    }
+  }
+
+  .bg-hero {
+    background: var(--gradient-hero);
+  }
+  .bg-card-gradient {
+    background: var(--gradient-card);
+  }
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  .rounded-theme {
+    border-radius: var(--radius);
+  }
+  .drop-shadow-app {
+    filter: drop-shadow(0 0 2em #646cffaa);
+  }
+  .drop-shadow-react {
+    filter: drop-shadow(0 0 2em #61dafbaa);
+  }
+  .animate-fade-in-up {
+    animation: fade-in-up 0.8s ease-out both;
+  }
 }
