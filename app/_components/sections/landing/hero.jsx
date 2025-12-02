@@ -1,11 +1,12 @@
-import { Button } from '@/app/_components/ui/button'
+import { Button } from '@/app/_components/ui/button.jsx'
 import { ArrowRight, Users, Briefcase } from 'lucide-react'
 import heroImage from '@/app/_assets/hero-bg.png'
 import Image from 'next/image'
+import Link from 'next/link'
 
 const Hero = () => {
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
+    <section className="relative flex min-h-dvh items-center justify-center overflow-hidden py-10 md:py-24">
       {/* Background with gradient overlay */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-linear-(--gradient-hero) opacity-90" />
@@ -42,20 +43,26 @@ const Hero = () => {
             <Button
               size="lg"
               className="text-primary shadow-glow rounded-xl bg-white px-8 py-6 text-lg hover:bg-white/90"
+              asChild
             >
-              <Users className="mr-2 h-5 w-5" />
-              Tôi Là Tester
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <Link href="/register?role=tester">
+                <Users className="mr-2 h-5 w-5" />
+                Tôi Là Tester
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
             </Button>
 
             <Button
               size="lg"
               variant="outline"
               className="rounded-xl border-white/30 bg-white/10 px-8 py-6 text-lg text-white backdrop-blur-sm hover:bg-white/20"
+              asChild
             >
-              <Briefcase className="mr-2 h-5 w-5" />
-              Tôi Cần Tester
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <Link href="/register?role=client">
+                <Briefcase className="mr-2 h-5 w-5" />
+                Tôi Cần Tester
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
             </Button>
           </div>
 

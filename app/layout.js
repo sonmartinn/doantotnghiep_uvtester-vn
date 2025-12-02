@@ -1,6 +1,6 @@
 import './globals.css'
-import Navbar from './_components/NavBar'
-import Footer from '@/app/_components/Footer'
+import { ThemeProvider } from '@/components/providers/theme-provider'
+import { Toaster } from '@/ui/sonner'
 
 export const metadata = {
   title: 'UVTester - Kết nối cộng đồng Tester Việt Nam',
@@ -10,11 +10,12 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className="antialiased">
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+    <html lang="vi" suppressHydrationWarning>
+      <body className={`antialiased`}>
+        <ThemeProvider>
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   )

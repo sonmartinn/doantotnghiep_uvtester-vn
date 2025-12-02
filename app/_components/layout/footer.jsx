@@ -2,7 +2,10 @@ import { Bug } from 'lucide-react'
 
 const Footer = () => {
   return (
-    <footer className="bg-linear-(--gradient-hero) py-12 text-white">
+    <footer
+      id="contact"
+      className="bg-linear-(--gradient-hero) py-12 text-white"
+    >
       <div className="container mx-auto px-4">
         <div className="mb-8 grid gap-8 md:grid-cols-4">
           {/* Brand */}
