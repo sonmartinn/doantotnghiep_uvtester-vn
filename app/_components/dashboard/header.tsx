@@ -17,9 +17,9 @@ import { Sheet, SheetContent, SheetTrigger } from '@/ui/sheet'
 import Sidebar from './sidebar'
 
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/app/_lib/supabase'
+import { supabase } from '@/lib/supabase/client'
 import { type User } from '@supabase/supabase-js'
-import { type NguoiDung } from '@/app/_lib/data-service'
+import { type NguoiDung } from '@/app/_services/data-service'
 
 interface HeaderProps {
   user: User | null

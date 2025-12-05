@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/app/_lib/supabase'
+import { supabase } from '@/lib/supabase/client'
 import Link from 'next/link'
 
 export default function ForgotPasswordPage() {
@@ -16,18 +16,14 @@ export default function ForgotPasswordPage() {
     setErrorMsg('')
     setSuccessMsg('')
 
-    const origin = typeof window !== 'undefined' ? window.location.origin : ''
-
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${origin}/reset-password`
-    })
+    const { error } = await supabase.auth.resetPasswordForEmail(email)
 
     if (error) {
       setErrorMsg(error.message)
     } else {
-      setSuccessMsg(
-        'Nếu email tồn tại trong hệ thống, chúng tôi đã gửi cho bạn một liên kết đặt lại mật khẩu. Vui lòng kiểm tra hộp thư (kể cả spam).'
-      )
+      // Redirect to OTP verification page
+      window.location.href = `/verify-reset?email=${encodeURIComponent(email)}`
+      return
     }
 
     setLoading(false)
@@ -59,7 +55,7 @@ export default function ForgotPasswordPage() {
             disabled={loading}
             className="bg-primary hover:bg-primary/90 text-primary-foreground w-full rounded-xl px-4 py-3 font-semibold transition-colors disabled:opacity-60"
           >
-            {loading ? 'Đang gửi email...' : 'Gửi link đặt lại mật khẩu'}
+            {loading ? 'Đang gửi mã OTP...' : 'Nhận mã khôi phục mật khẩu'}
           </button>
         </form>
 

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
-import { getNguoiDung } from '@/app/_lib/data-service'
+import { createClient } from '@/lib/supabase/server'
+import { getNguoiDung } from '@/app/_services/data-service'
 import Sidebar from '@/app/_components/dashboard/sidebar'
 import Header from '@/app/_components/dashboard/header'
 

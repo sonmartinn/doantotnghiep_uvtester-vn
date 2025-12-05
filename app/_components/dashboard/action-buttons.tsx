@@ -1,7 +1,10 @@
 'use client'
 
 import { Button } from '@/ui/button'
-import { checkProfileCompletion, type NguoiDung } from '@/app/_lib/data-service'
+import {
+  checkProfileCompletion,
+  type NguoiDung
+} from '@/app/_services/data-service'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 

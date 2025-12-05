@@ -21,8 +21,8 @@ import {
 } from '@/app/_components/ui/avatar'
 import { ThemeToggle } from '@/ui/theme-toggle'
 
-import { supabase } from '@/app/_lib/supabase'
-import { getFullUser, type NguoiDung } from '@/app/_lib/data-service'
+import { supabase } from '@/lib/supabase/client'
+import { getFullUser, type NguoiDung } from '@/app/_services/data-service'
 import { type User } from '@supabase/supabase-js'
 
 export default function Navbar() {

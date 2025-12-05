@@ -3,7 +3,10 @@
 import { AlertTriangle, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/ui/button'
-import { checkProfileCompletion, type NguoiDung } from '@/app/_lib/data-service'
+import {
+  checkProfileCompletion,
+  type NguoiDung
+} from '@/app/_services/data-service'
 
 interface ProfileAlertProps {
   profile: NguoiDung | null

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/app/_lib/supabase'
+import { supabase } from '@/lib/supabase/client'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -14,9 +14,12 @@ export default function ResetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
 
+  const [loading, setLoading] = useState(false)
+
   useEffect(() => {
     async function checkSession() {
       const { data, error } = await supabase.auth.getUser()
+
       if (error || !data?.user) {
         setStatus('invalid')
       } else {
@@ -29,14 +32,17 @@ export default function ResetPasswordPage() {
   async function handleUpdate(e: React.FormEvent) {
     e.preventDefault()
     setErrorMsg('')
+    setLoading(true)
 
     if (password.length < 6) {
       setErrorMsg('Mật khẩu phải có ít nhất 6 ký tự.')
+      setLoading(false)
       return
     }
 
     if (password !== confirmPassword) {
       setErrorMsg('Mật khẩu xác nhận không khớp.')
+      setLoading(false)
       return
     }
 
@@ -44,6 +50,7 @@ export default function ResetPasswordPage() {
 
     if (error) {
       setErrorMsg(error.message)
+      setLoading(false)
     } else {
       setStatus('success')
 
@@ -107,9 +114,10 @@ export default function ResetPasswordPage() {
 
             <button
               type="submit"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground w-full rounded-xl px-4 py-3 font-semibold transition-colors disabled:opacity-60"
+              disabled={loading}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground w-full cursor-pointer rounded-xl px-4 py-3 font-semibold transition-colors disabled:opacity-60"
             >
-              Cập nhật mật khẩu
+              {loading ? 'Đang cập nhật...' : 'Cập nhật mật khẩu'}
             </button>
           </form>
         )}

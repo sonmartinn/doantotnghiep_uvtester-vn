@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { supabase } from '@/app/_lib/supabase'
-import { ensureNguoiDungExists } from '@/app/_lib/data-service'
+import { supabase } from '@/lib/supabase/client'
+import { ensureNguoiDungExists } from '@/app/_services/data-service'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -32,7 +32,7 @@ export default function LoginPage() {
       // Lấy thông tin user và role để redirect đúng trang
       const user = data.user
       if (user) {
-        toast.success('Đăng nhập thành công')
+        toast.success('Đăng nhập thành công! Đang chuyển tới trang làm việc...')
         const nguoiDung = await ensureNguoiDungExists(user)
         const role = nguoiDung?.vaiTro || user.user_metadata?.role
 

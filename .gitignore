@@ -10,12 +10,6 @@
 !.yarn/releases
 !.yarn/versions
 
-# docs
-/docs
-
-# migrations
-/supabase/migrations
-
 # testing
 /coverage
 

@@ -1,5 +1,5 @@
-import { getFullUser } from '@/app/_lib/data-service'
-import { createClient } from '@/utils/supabase/server'
+import { getFullUser } from '@/app/_services/data-service'
+import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card'
 import { FileText, DollarSign, Clock, CheckCircle } from 'lucide-react'
 import ProfileAlert from '@/app/_components/dashboard/profile-alert'

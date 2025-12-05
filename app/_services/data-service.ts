@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { supabase } from '@/lib/supabase/client'
 import { Database } from './database.types'
 import { SupabaseClient, User } from '@supabase/supabase-js'
 
@@ -49,21 +49,20 @@ export async function ensureNguoiDungExists(
   user: User,
   supabaseClient: SupabaseClient<Database> = supabase
 ): Promise<NguoiDung | null> {
-  const exists = await getNguoiDung(user.id, supabaseClient)
-
-  if (exists) return exists
-
   const { data, error } = await supabaseClient
     .from('NguoiDung')
-    .insert({
-      maNguoiDung: user.id,
-      email: user.email!,
-      vaiTro: user.user_metadata?.role || 'tester',
-      hoTen:
-        user.user_metadata?.hoTen ||
-        user.email?.split('@')[0] ||
-        'Người dùng mới'
-    })
+    .upsert(
+      {
+        maNguoiDung: user.id,
+        email: user.email!,
+        vaiTro: user.user_metadata?.role || 'tester',
+        hoTen:
+          user.user_metadata?.hoTen ||
+          user.email?.split('@')[0] ||
+          'Người dùng mới'
+      },
+      { onConflict: 'maNguoiDung' }
+    )
     .select()
     .single()
 

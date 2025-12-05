@@ -17,7 +17,7 @@ import {
   MonitorSmartphone
 } from 'lucide-react'
 import { Button } from '@/ui/button'
-import { supabase } from '@/app/_lib/supabase'
+import { supabase } from '@/lib/supabase/client'
 
 interface SidebarProps {
   role?: string

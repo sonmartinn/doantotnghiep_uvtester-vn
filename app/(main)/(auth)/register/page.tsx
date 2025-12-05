@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useState } from 'react'
-import { supabase } from '@/app/_lib/supabase'
+import { supabase } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -24,36 +24,40 @@ function RegisterContent() {
     setLoading(true)
     setErrorMsg('')
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          role,
-          hoTen
-        },
-        emailRedirectTo: `${window.location.origin}/auth/confirm`
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            role,
+            hoTen
+          }
+          // // We don't need redirect URL for OTP flow, but good to keep just in case
+          // emailRedirectTo: `${window.location.origin}/confirm`
+        }
+      })
+
+      if (error) {
+        setErrorMsg(error.message)
+        return
+      } else if (data.user && data.user.identities?.length === 0) {
+        setErrorMsg(
+          'Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng chức năng quên mật khẩu.'
+        )
+        return
+      } else {
+        toast.success(
+          'Đăng ký thành công! Vui lòng kiểm tra email để lấy mã OTP.'
+        )
+        // Redirect to OTP verification page
+        router.push(`/verify?email=${encodeURIComponent(email)}`)
       }
-    })
-
-    if (error) {
-      setErrorMsg(error.message)
+    } catch (err: any) {
+      setErrorMsg('Đã xảy ra lỗi. Vui lòng thử lại.')
+    } finally {
       setLoading(false)
-      return
-    } else if (data.user && data.user.identities?.length === 0) {
-      setErrorMsg(
-        'Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng chức năng quên mật khẩu.'
-      )
-      setLoading(false)
-      return
-    } else {
-      toast.success(
-        'Đăng ký thành công! Vui lòng kiểm tra email để xác nhận tài khoản.'
-      )
     }
-
-    router.push('/login')
-    setLoading(false)
   }
 
   return (
