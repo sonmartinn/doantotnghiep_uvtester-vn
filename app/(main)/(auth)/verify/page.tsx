@@ -45,7 +45,9 @@ function VerifyContent() {
         // Create user profile
         await ensureNguoiDungExists(data.user)
 
-        toast.success('Xác thực thành công!')
+        toast.success(
+          'Xác thực thành công! Đang chuyển bạn tới trang làm việc...'
+        )
 
         const role = data.user.user_metadata?.role || 'tester'
         if (role === 'tester') {
@@ -57,9 +59,8 @@ function VerifyContent() {
         }
       }
     } catch (error: any) {
-      toast.error(error.message || 'Mã xác thực không đúng')
-    } finally {
       setIsLoading(false)
+      toast.error(error.message || 'Mã xác thực không đúng')
     }
   }
 

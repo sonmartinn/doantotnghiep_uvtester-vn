@@ -26,7 +26,16 @@ export default function LoginPage() {
     })
 
     if (error) {
-      setErrorMsg(error.message)
+      let msg = error.message
+      if (msg.includes('Invalid login credentials')) {
+        msg = 'Email hoặc mật khẩu không chính xác.'
+      } else if (msg.includes('Email not confirmed')) {
+        msg = 'Email chưa được xác thực. Vui lòng kiểm tra hộp thư.'
+      } else {
+        msg = 'Đăng nhập thất bại. Vui lòng thử lại.'
+      }
+
+      setErrorMsg(msg)
       setLoading(false)
     } else {
       // Lấy thông tin user và role để redirect đúng trang

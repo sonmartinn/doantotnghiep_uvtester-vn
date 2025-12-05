@@ -54,9 +54,8 @@ function RegisterContent() {
         router.push(`/verify?email=${encodeURIComponent(email)}`)
       }
     } catch (err: any) {
-      setErrorMsg('Đã xảy ra lỗi. Vui lòng thử lại.')
-    } finally {
       setLoading(false)
+      setErrorMsg('Đã xảy ra lỗi. Vui lòng thử lại.')
     }
   }
 
