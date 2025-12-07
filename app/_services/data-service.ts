@@ -49,25 +49,33 @@ export async function ensureNguoiDungExists(
   user: User,
   supabaseClient: SupabaseClient<Database> = supabase
 ): Promise<NguoiDung | null> {
+  // 1. Check if user already exists
+  const existingUser = await getNguoiDung(user.id, supabaseClient)
+  if (existingUser) {
+    return existingUser
+  }
+
+  // 2. If not, insert with defaults
   const { data, error } = await supabaseClient
     .from('NguoiDung')
-    .upsert(
-      {
-        maNguoiDung: user.id,
-        email: user.email!,
-        vaiTro: user.user_metadata?.role || 'tester',
-        hoTen:
-          user.user_metadata?.hoTen ||
-          user.email?.split('@')[0] ||
-          'Người dùng mới'
-      },
-      { onConflict: 'maNguoiDung' }
-    )
+    .insert({
+      maNguoiDung: user.id,
+      email: user.email!,
+      vaiTro: user.user_metadata?.role || 'tester',
+      hoTen:
+        user.user_metadata?.hoTen ||
+        user.email?.split('@')[0] ||
+        'Người dùng mới',
+      // Default values for new users only
+      gioiTinh: 'Khác',
+      ngaySinh: '1990-01-01',
+      diaChi: {}
+    })
     .select()
     .single()
 
   if (error) {
-    console.error('ensureNguoiDungExists error:', error)
+    console.error('ensureNguoiDungExists create error:', error)
     return null
   }
 
@@ -80,13 +88,21 @@ export async function updateNguoiDung(
   fields: Partial<NguoiDung>,
   supabaseClient: SupabaseClient<Database> = supabase
 ): Promise<boolean> {
-  const { error } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from('NguoiDung')
     .update(fields)
     .eq('maNguoiDung', maNguoiDung)
+    .select()
 
   if (error) {
     console.error('updateNguoiDung error:', error)
+    return false
+  }
+
+  if (!data || data.length === 0) {
+    console.warn('updateNguoiDung: No rows updated! Check RLS or ID.', {
+      maNguoiDung
+    })
     return false
   }
 
@@ -120,11 +136,12 @@ export async function upsertHoSoTester(
   fields: Partial<HoSoTester>,
   supabaseClient: SupabaseClient<Database> = supabase
 ): Promise<boolean> {
+  // @ts-ignore: Partial fields might miss required columns for INSERT, but we trust logic or it's an update
   const { error } = await supabaseClient.from('HoSoTester').upsert(
     {
       maNguoiDung,
       ...fields
-    },
+    } as any,
     { onConflict: 'maNguoiDung' }
   )
 
@@ -163,11 +180,12 @@ export async function upsertHoSoClient(
   fields: Partial<HoSoClient>,
   supabaseClient: SupabaseClient<Database> = supabase
 ): Promise<boolean> {
+  // @ts-ignore: Partial fields might miss required columns for INSERT
   const { error } = await supabaseClient.from('HoSoClient').upsert(
     {
       maNguoiDung,
       ...fields
-    },
+    } as any,
     { onConflict: 'maNguoiDung' }
   )
 
@@ -218,7 +236,8 @@ type CompletionResult = {
 }
 
 export function checkProfileCompletion(
-  nguoiDung: NguoiDung | null
+  nguoiDung: NguoiDung | null,
+  hoSo: HoSoTester | HoSoClient | null
 ): CompletionResult {
   if (!nguoiDung) return { percent: 0, missing: ['Hồ sơ chưa tồn tại'] }
 
@@ -226,40 +245,19 @@ export function checkProfileCompletion(
   let total = 0
   const missing: string[] = []
 
-  // Các trường cơ bản (chung cho cả Tester và Client)
+  // Các trường cơ bản (NguoiDung)
   const basicFields = [
-    { key: 'hoTen', label: 'Họ tên', weight: 20 },
-    { key: 'diaChi', label: 'Địa chỉ khu vực bạn sống', weight: 5 },
-    { key: 'gioiThieu', label: 'Giới thiệu bản thân', weight: 20 },
-    { key: 'thongTinThanhToan', label: 'Thông tin thanh toán', weight: 5 }
+    { key: 'hoTen', label: 'Họ tên', weight: 10 },
+    { key: 'diaChi', label: 'Địa chỉ', weight: 10 },
+    { key: 'gioiThieu', label: 'Giới thiệu', weight: 10 },
+    { key: 'thongTinThanhToan', label: 'Thông tin thanh toán', weight: 10 }
   ]
 
-  // Các trường riêng cho Tester
-  const testerFields = [
-    { key: 'kyNang', label: 'Kỹ năng', weight: 25 },
-    { key: 'kinhNghiem', label: 'Kinh nghiệm', weight: 25 }
-  ]
-
-  // Các trường riêng cho Client
-  const clientFields = [
-    { key: 'tenCongTy', label: 'Tên công ty', weight: 25 },
-    { key: 'website', label: 'Website', weight: 25 }
-  ]
-
-  // Chọn bộ fields dựa trên vai trò
-  let fieldsToCheck = [...basicFields]
-  if (nguoiDung.vaiTro === 'tester') {
-    fieldsToCheck = [...fieldsToCheck, ...testerFields]
-  } else if (nguoiDung.vaiTro === 'client') {
-    fieldsToCheck = [...fieldsToCheck, ...clientFields]
-  }
-
-  // Tính điểm
-  fieldsToCheck.forEach(field => {
+  // Check basic fields
+  basicFields.forEach(field => {
     total += field.weight
-    // @ts-ignore - access dynamic key on NguoiDung
+    // @ts-ignore
     const value = nguoiDung[field.key as keyof NguoiDung]
-
     if (value && (typeof value === 'string' ? value.length > 0 : true)) {
       score += field.weight
     } else {
@@ -267,8 +265,54 @@ export function checkProfileCompletion(
     }
   })
 
+  // Các trường riêng cho Tester (HoSoTester)
+  if (nguoiDung.vaiTro === 'tester') {
+    const testerFields = [
+      { key: 'soNamKinhNghiem', label: 'Số năm kinh nghiệm', weight: 15 },
+      { key: 'ngonNguChinh', label: 'Ngôn ngữ', weight: 15 },
+      { key: 'thongTinThietBi', label: 'Thiết bị', weight: 15 },
+      { key: 'thongTinKiemThu', label: 'Thông tin kiểm thử', weight: 15 }
+    ]
+
+    testerFields.forEach(field => {
+      total += field.weight
+      // @ts-ignore
+      const value = hoSo
+        ? (hoSo as HoSoTester)[field.key as keyof HoSoTester]
+        : null
+      if (value && (typeof value === 'string' ? value.length > 0 : true)) {
+        score += field.weight
+      } else {
+        missing.push(field.label)
+      }
+    })
+  }
+
+  // Các trường riêng cho Client (HoSoClient)
+  else if (nguoiDung.vaiTro === 'client') {
+    const clientFields = [
+      { key: 'tenCongTy', label: 'Tên công ty', weight: 15 },
+      { key: 'website', label: 'Website', weight: 15 },
+      { key: 'linhVucHoatDong', label: 'Lĩnh vực hoạt động', weight: 15 },
+      { key: 'quyMoCongTy', label: 'Quy mô công ty', weight: 15 }
+    ]
+
+    clientFields.forEach(field => {
+      total += field.weight
+      // @ts-ignore
+      const value = hoSo
+        ? (hoSo as HoSoClient)[field.key as keyof HoSoClient]
+        : null
+      if (value && (typeof value === 'string' ? value.length > 0 : true)) {
+        score += field.weight
+      } else {
+        missing.push(field.label)
+      }
+    })
+  }
+
   // Chuẩn hóa về thang 100%
-  const percent = Math.round((score / total) * 100)
+  const percent = total === 0 ? 0 : Math.round((score / total) * 100)
 
   return { percent, missing }
 }

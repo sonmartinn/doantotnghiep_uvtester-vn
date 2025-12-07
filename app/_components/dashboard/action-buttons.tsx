@@ -3,18 +3,21 @@
 import { Button } from '@/ui/button'
 import {
   checkProfileCompletion,
-  type NguoiDung
+  type NguoiDung,
+  type HoSoTester,
+  type HoSoClient
 } from '@/app/_services/data-service'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 interface ActionButtonProps {
   profile: NguoiDung | null
+  hoSo: HoSoTester | HoSoClient | null
 }
 
-export function PostProjectButton({ profile }: ActionButtonProps) {
+export function PostProjectButton({ profile, hoSo }: ActionButtonProps) {
   const router = useRouter()
-  const { percent } = checkProfileCompletion(profile)
+  const { percent } = checkProfileCompletion(profile, hoSo)
 
   const handleClick = () => {
     if (percent < 100) {
@@ -27,9 +30,9 @@ export function PostProjectButton({ profile }: ActionButtonProps) {
   return <Button onClick={handleClick}>Đăng dự án mới</Button>
 }
 
-export function FindJobButton({ profile }: ActionButtonProps) {
+export function FindJobButton({ profile, hoSo }: ActionButtonProps) {
   const router = useRouter()
-  const { percent } = checkProfileCompletion(profile)
+  const { percent } = checkProfileCompletion(profile, hoSo)
 
   const handleClick = () => {
     if (percent < 100) {

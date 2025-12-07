@@ -11,58 +11,58 @@ export type Database = {
     Tables: {
       BaoCaoLoi: {
         Row: {
-          cacBuocTaiHien: Json | null
-          fileBangChung: Json | null
-          ketQuaMongDoi: string
-          ketQuaThucTe: string
-          khaNangTaiTao: string | null
-          maDuAn: number
-          maKetQuaKiemThu: number | null
           maLoi: number
-          maLoiHienThi: string
+          maDuAn: number
           maNguoiBaoCao: string
-          mucDoNghiemTrong: string | null
-          ngayBaoCao: string | null
-          phanHoiCuaClient: string | null
-          thongTinTrinhDuyet: Json | null
+          maKetQuaKiemThu: number | null
+          maLoiHienThi: string
           tieuDe: string
+          cacBuocTaiHien: Json | null
+          ketQuaThucTe: string
+          ketQuaMongDoi: string
+          mucDoNghiemTrong: string | null
+          khaNangTaiTao: string | null
+          fileBangChung: Json | null
+          thongTinTrinhDuyet: Json | null
           trangThaiLoi: string | null
+          phanHoiCuaClient: string | null
+          ngayBaoCao: string | null
         }
         Insert: {
-          cacBuocTaiHien?: Json | null
-          fileBangChung?: Json | null
-          ketQuaMongDoi: string
-          ketQuaThucTe: string
-          khaNangTaiTao?: string | null
-          maDuAn: number
-          maKetQuaKiemThu?: number | null
           maLoi?: number
-          maLoiHienThi: string
+          maDuAn: number
           maNguoiBaoCao: string
-          mucDoNghiemTrong?: string | null
-          ngayBaoCao?: string | null
-          phanHoiCuaClient?: string | null
-          thongTinTrinhDuyet?: Json | null
+          maKetQuaKiemThu?: number | null
+          maLoiHienThi: string
           tieuDe: string
+          cacBuocTaiHien?: Json | null
+          ketQuaThucTe: string
+          ketQuaMongDoi: string
+          mucDoNghiemTrong?: string | null
+          khaNangTaiTao?: string | null
+          fileBangChung?: Json | null
+          thongTinTrinhDuyet?: Json | null
           trangThaiLoi?: string | null
+          phanHoiCuaClient?: string | null
+          ngayBaoCao?: string | null
         }
         Update: {
-          cacBuocTaiHien?: Json | null
-          fileBangChung?: Json | null
-          ketQuaMongDoi?: string
-          ketQuaThucTe?: string
-          khaNangTaiTao?: string | null
-          maDuAn?: number
-          maKetQuaKiemThu?: number | null
           maLoi?: number
-          maLoiHienThi?: string
+          maDuAn?: number
           maNguoiBaoCao?: string
-          mucDoNghiemTrong?: string | null
-          ngayBaoCao?: string | null
-          phanHoiCuaClient?: string | null
-          thongTinTrinhDuyet?: Json | null
+          maKetQuaKiemThu?: number | null
+          maLoiHienThi?: string
           tieuDe?: string
+          cacBuocTaiHien?: Json | null
+          ketQuaThucTe?: string
+          ketQuaMongDoi?: string
+          mucDoNghiemTrong?: string | null
+          khaNangTaiTao?: string | null
+          fileBangChung?: Json | null
+          thongTinTrinhDuyet?: Json | null
           trangThaiLoi?: string | null
+          phanHoiCuaClient?: string | null
+          ngayBaoCao?: string | null
         }
         Relationships: [
           {
@@ -90,57 +90,72 @@ export type Database = {
       }
       DuAn: {
         Row: {
-          fileDinhKem: Json | null
-          hanChotNopHoSo: string | null
-          linhVuc: string | null
           maDuAn: number
-          maNguoiDang: string
-          moTaDuAn: string
-          nganSach: number | null
-          ngayDang: string | null
-          ngayKetThucDuAn: string | null
-          soLuongCanTuyen: number | null
-          tenDuAn: string
-          trangThaiDuAn: string | null
-          yeuCauKyNang: Json | null
-          yeuCauThietBi: Json | null
+          maNguoiTao: string
+          maDuAnHienThi: string
+          tieuDe: string | null
+          moTa: string | null
+          loaiDuAn: string
+          cauHoiKhaoSat: Json | null
+          nganSach: number
+          yeuCauMoiTruong: Json | null
+          phamViTest: Json | null
+          huongDanTruyCap: string | null
+          huongDanKyThuat: string | null
+          taiLieuDinhKem: Json | null
+          cauHinhThanhToan: Json | null
+          soLuongCanTuyen: number
+          thoiHanNopBai: string | null
+          thoiHanDuAn: string | null
+          trangThaiDuAn: string
+          ngayTao: string
         }
         Insert: {
-          fileDinhKem?: Json | null
-          hanChotNopHoSo?: string | null
-          linhVuc?: string | null
           maDuAn?: number
-          maNguoiDang: string
-          moTaDuAn: string
-          nganSach?: number | null
-          ngayDang?: string | null
-          ngayKetThucDuAn?: string | null
-          soLuongCanTuyen?: number | null
-          tenDuAn: string
-          trangThaiDuAn?: string | null
-          yeuCauKyNang?: Json | null
-          yeuCauThietBi?: Json | null
+          maNguoiTao: string
+          maDuAnHienThi: string
+          tieuDe?: string | null
+          moTa?: string | null
+          loaiDuAn: string
+          cauHoiKhaoSat?: Json | null
+          nganSach: number
+          yeuCauMoiTruong?: Json | null
+          phamViTest?: Json | null
+          huongDanTruyCap?: string | null
+          huongDanKyThuat?: string | null
+          taiLieuDinhKem?: Json | null
+          cauHinhThanhToan?: Json | null
+          soLuongCanTuyen?: number
+          thoiHanNopBai?: string | null
+          thoiHanDuAn?: string | null
+          trangThaiDuAn?: string
+          ngayTao?: string
         }
         Update: {
-          fileDinhKem?: Json | null
-          hanChotNopHoSo?: string | null
-          linhVuc?: string | null
           maDuAn?: number
-          maNguoiDang?: string
-          moTaDuAn?: string
-          nganSach?: number | null
-          ngayDang?: string | null
-          ngayKetThucDuAn?: string | null
-          soLuongCanTuyen?: number | null
-          tenDuAn?: string
-          trangThaiDuAn?: string | null
-          yeuCauKyNang?: Json | null
-          yeuCauThietBi?: Json | null
+          maNguoiTao?: string
+          maDuAnHienThi?: string
+          tieuDe?: string | null
+          moTa?: string | null
+          loaiDuAn?: string
+          cauHoiKhaoSat?: Json | null
+          nganSach?: number
+          yeuCauMoiTruong?: Json | null
+          phamViTest?: Json | null
+          huongDanTruyCap?: string | null
+          huongDanKyThuat?: string | null
+          taiLieuDinhKem?: Json | null
+          cauHinhThanhToan?: Json | null
+          soLuongCanTuyen?: number
+          thoiHanNopBai?: string | null
+          thoiHanDuAn?: string | null
+          trangThaiDuAn?: string
+          ngayTao?: string
         }
         Relationships: [
           {
-            foreignKeyName: 'DuAn_maNguoiDang_fkey'
-            columns: ['maNguoiDang']
+            foreignKeyName: 'DuAn_maNguoiTao_fkey'
+            columns: ['maNguoiTao']
             isOneToOne: false
             referencedRelation: 'NguoiDung'
             referencedColumns: ['maNguoiDung']
@@ -149,31 +164,31 @@ export type Database = {
       }
       HoSoClient: {
         Row: {
-          linhVucHoatDong: string | null
           maNguoiDung: string
-          maSoThue: string | null
-          moTaCongTy: string | null
-          quyMoCongTy: string | null
-          tenCongTy: string | null
-          website: string | null
+          tenCongTy: string
+          maSoThue: string
+          website: string
+          quyMoCongTy: string
+          linhVucHoatDong: string
+          viTriCongViec: string
         }
         Insert: {
-          linhVucHoatDong?: string | null
           maNguoiDung: string
-          maSoThue?: string | null
-          moTaCongTy?: string | null
-          quyMoCongTy?: string | null
-          tenCongTy?: string | null
-          website?: string | null
+          tenCongTy: string
+          maSoThue: string
+          website: string
+          quyMoCongTy: string
+          linhVucHoatDong: string
+          viTriCongViec: string
         }
         Update: {
-          linhVucHoatDong?: string | null
           maNguoiDung?: string
-          maSoThue?: string | null
-          moTaCongTy?: string | null
-          quyMoCongTy?: string | null
-          tenCongTy?: string | null
-          website?: string | null
+          tenCongTy?: string
+          maSoThue?: string
+          website?: string
+          quyMoCongTy?: string
+          linhVucHoatDong?: string
+          viTriCongViec?: string
         }
         Relationships: [
           {
@@ -187,37 +202,28 @@ export type Database = {
       }
       HoSoTester: {
         Row: {
-          chungChi: Json | null
-          duAnDaLam: Json | null
-          hocVan: Json | null
-          kinhNghiem: Json | null
-          kyNang: Json | null
           maNguoiDung: string
-          mucLuongMongMuon: number | null
-          thietBiHienCo: Json | null
-          trangThaiLamViec: string | null
+          soNamKinhNghiem: number
+          ngonNguChinh: string | null
+          ngonNguKhac: Json | null
+          thongTinThietBi: Json | null
+          thongTinKiemThu: Json | null
         }
         Insert: {
-          chungChi?: Json | null
-          duAnDaLam?: Json | null
-          hocVan?: Json | null
-          kinhNghiem?: Json | null
-          kyNang?: Json | null
           maNguoiDung: string
-          mucLuongMongMuon?: number | null
-          thietBiHienCo?: Json | null
-          trangThaiLamViec?: string | null
+          soNamKinhNghiem: number
+          ngonNguChinh?: string | null
+          ngonNguKhac?: Json | null
+          thongTinThietBi?: Json | null
+          thongTinKiemThu?: Json | null
         }
         Update: {
-          chungChi?: Json | null
-          duAnDaLam?: Json | null
-          hocVan?: Json | null
-          kinhNghiem?: Json | null
-          kyNang?: Json | null
           maNguoiDung?: string
-          mucLuongMongMuon?: number | null
-          thietBiHienCo?: Json | null
-          trangThaiLamViec?: string | null
+          soNamKinhNghiem?: number
+          ngonNguChinh?: string | null
+          ngonNguKhac?: Json | null
+          thongTinThietBi?: Json | null
+          thongTinKiemThu?: Json | null
         }
         Relationships: [
           {
@@ -231,34 +237,34 @@ export type Database = {
       }
       HoTro: {
         Row: {
-          fileDinhKem: Json | null
-          maNguoiGui: string | null
           maYeuCau: number
-          ngayGui: string | null
-          noiDung: string | null
-          phanHoiAdmin: string | null
+          maNguoiGui: string | null
           tieuDe: string | null
+          noiDung: string | null
+          fileDinhKem: Json | null
           trangThaiHoTro: string | null
+          phanHoiAdmin: string | null
+          ngayGui: string | null
         }
         Insert: {
-          fileDinhKem?: Json | null
-          maNguoiGui?: string | null
           maYeuCau?: number
-          ngayGui?: string | null
-          noiDung?: string | null
-          phanHoiAdmin?: string | null
+          maNguoiGui?: string | null
           tieuDe?: string | null
+          noiDung?: string | null
+          fileDinhKem?: Json | null
           trangThaiHoTro?: string | null
+          phanHoiAdmin?: string | null
+          ngayGui?: string | null
         }
         Update: {
-          fileDinhKem?: Json | null
-          maNguoiGui?: string | null
           maYeuCau?: number
-          ngayGui?: string | null
-          noiDung?: string | null
-          phanHoiAdmin?: string | null
+          maNguoiGui?: string | null
           tieuDe?: string | null
+          noiDung?: string | null
+          fileDinhKem?: Json | null
           trangThaiHoTro?: string | null
+          phanHoiAdmin?: string | null
+          ngayGui?: string | null
         }
         Relationships: [
           {
@@ -270,47 +276,94 @@ export type Database = {
           }
         ]
       }
-      KetQuaKiemThu: {
+      KenhChat: {
         Row: {
-          danhGiaChatLuong: string | null
-          fileBaoCaoTongHop: Json | null
-          ghiChu: string | null
-          maDuAn: number
-          maKetQua: number
-          maNguoiThucHien: string
-          ngayHoanThanh: string | null
-          soLoiNghiemTrong: number | null
-          soLoiTimDuoc: number | null
+          maKenh: number
+          maDuAn: number | null
+          tenKenh: string | null
+          loaiKenh: string | null
         }
         Insert: {
-          danhGiaChatLuong?: string | null
-          fileBaoCaoTongHop?: Json | null
-          ghiChu?: string | null
-          maDuAn: number
-          maKetQua?: number
-          maNguoiThucHien: string
-          ngayHoanThanh?: string | null
-          soLoiNghiemTrong?: number | null
-          soLoiTimDuoc?: number | null
+          maKenh?: number
+          maDuAn?: number | null
+          tenKenh?: string | null
+          loaiKenh?: string | null
         }
         Update: {
-          danhGiaChatLuong?: string | null
-          fileBaoCaoTongHop?: Json | null
-          ghiChu?: string | null
-          maDuAn?: number
-          maKetQua?: number
-          maNguoiThucHien?: string
-          ngayHoanThanh?: string | null
-          soLoiNghiemTrong?: number | null
-          soLoiTimDuoc?: number | null
+          maKenh?: number
+          maDuAn?: number | null
+          tenKenh?: string | null
+          loaiKenh?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: 'KetQuaKiemThu_maDuAn_fkey'
+            foreignKeyName: 'KenhChat_maDuAn_fkey'
             columns: ['maDuAn']
             isOneToOne: false
             referencedRelation: 'DuAn'
             referencedColumns: ['maDuAn']
+          }
+        ]
+      }
+      KetQuaKiemThu: {
+        Row: {
+          maKetQua: number
+          maKichBan: number
+          maNguoiThucHien: string
+          thietBiSuDung: Json | null
+          ketQuaTungBuoc: Json | null
+          trangThaiChung: string | null
+          ketQuaThucTeChung: string | null
+          maBaoCaoLoiLienQuan: string | null
+          lyDoBiChan: string | null
+          lyDoBoQua: string | null
+          thongTinBoSung: Json | null
+          fileBangChung: Json | null
+          trangThaiDuyet: string | null
+          phanHoiCuaClient: Json | null
+          ngayThucHien: string | null
+        }
+        Insert: {
+          maKetQua?: number
+          maKichBan: number
+          maNguoiThucHien: string
+          thietBiSuDung?: Json | null
+          ketQuaTungBuoc?: Json | null
+          trangThaiChung?: string | null
+          ketQuaThucTeChung?: string | null
+          maBaoCaoLoiLienQuan?: string | null
+          lyDoBiChan?: string | null
+          lyDoBoQua?: string | null
+          thongTinBoSung?: Json | null
+          fileBangChung?: Json | null
+          trangThaiDuyet?: string | null
+          phanHoiCuaClient?: Json | null
+          ngayThucHien?: string | null
+        }
+        Update: {
+          maKetQua?: number
+          maKichBan?: number
+          maNguoiThucHien?: string
+          thietBiSuDung?: Json | null
+          ketQuaTungBuoc?: Json | null
+          trangThaiChung?: string | null
+          ketQuaThucTeChung?: string | null
+          maBaoCaoLoiLienQuan?: string | null
+          lyDoBiChan?: string | null
+          lyDoBoQua?: string | null
+          thongTinBoSung?: Json | null
+          fileBangChung?: Json | null
+          trangThaiDuyet?: string | null
+          phanHoiCuaClient?: Json | null
+          ngayThucHien?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'KetQuaKiemThu_maKichBan_fkey'
+            columns: ['maKichBan']
+            isOneToOne: false
+            referencedRelation: 'KichBanKiemThu'
+            referencedColumns: ['maKichBan']
           },
           {
             foreignKeyName: 'KetQuaKiemThu_maNguoiThucHien_fkey'
@@ -321,78 +374,125 @@ export type Database = {
           }
         ]
       }
-      NguoiDung: {
+      KichBanKiemThu: {
         Row: {
-          anhDaiDien: string | null
-          diaChi: Json | null
-          email: string
-          gioiThieu: string | null
-          gioiTinh: string | null
-          hoTen: string | null
-          linkLinkedIn: string | null
-          maNguoiDung: string
-          ngaySinh: string | null
-          ngayTao: string | null
-          thongTinThanhToan: Json | null
-          vaiTro: string
+          maKichBan: number
+          maDuAn: number
+          maKichBanHienThi: string
+          tieuDe: string
+          dieuKienTienQuyet: string | null
+          huongDanDacBiet: Json | null
+          cacBuocThucHien: Json
+          cauHoiBoSung: Json
+          yeuCauBangChung: string | null
+          ngayTao: string
         }
         Insert: {
-          anhDaiDien?: string | null
-          diaChi?: Json | null
-          email: string
-          gioiThieu?: string | null
-          gioiTinh?: string | null
-          hoTen?: string | null
-          linkLinkedIn?: string | null
-          maNguoiDung: string
-          ngaySinh?: string | null
-          ngayTao?: string | null
-          thongTinThanhToan?: Json | null
-          vaiTro: string
+          maKichBan?: number
+          maDuAn: number
+          maKichBanHienThi: string
+          tieuDe: string
+          dieuKienTienQuyet?: string | null
+          huongDanDacBiet?: Json | null
+          cacBuocThucHien: Json
+          cauHoiBoSung: Json
+          yeuCauBangChung?: string | null
+          ngayTao?: string
         }
         Update: {
+          maKichBan?: number
+          maDuAn?: number
+          maKichBanHienThi?: string
+          tieuDe?: string
+          dieuKienTienQuyet?: string | null
+          huongDanDacBiet?: Json | null
+          cacBuocThucHien?: Json
+          cauHoiBoSung?: Json
+          yeuCauBangChung?: string | null
+          ngayTao?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'KichBanKiemThu_maDuAn_fkey'
+            columns: ['maDuAn']
+            isOneToOne: false
+            referencedRelation: 'DuAn'
+            referencedColumns: ['maDuAn']
+          }
+        ]
+      }
+      NguoiDung: {
+        Row: {
+          maNguoiDung: string
+          email: string
+          hoTen: string
+          anhDaiDien: string | null
+          vaiTro: string
+          gioiTinh: string
+          ngaySinh: string
+          diaChi: Json | null
+          gioiThieu: string | null
+          linkLinkedIn: string | null
+          ngayTao: string | null
+          thongTinThanhToan: Json | null
+        }
+        Insert: {
+          maNguoiDung: string
+          email: string
+          hoTen: string
           anhDaiDien?: string | null
+          vaiTro: string
+          gioiTinh: string
+          ngaySinh: string
           diaChi?: Json | null
-          email?: string
           gioiThieu?: string | null
-          gioiTinh?: string | null
-          hoTen?: string | null
           linkLinkedIn?: string | null
-          maNguoiDung?: string
-          ngaySinh?: string | null
           ngayTao?: string | null
           thongTinThanhToan?: Json | null
+        }
+        Update: {
+          maNguoiDung?: string
+          email?: string
+          hoTen?: string
+          anhDaiDien?: string | null
           vaiTro?: string
+          gioiTinh?: string
+          ngaySinh?: string
+          diaChi?: Json | null
+          gioiThieu?: string | null
+          linkLinkedIn?: string | null
+          ngayTao?: string | null
+          thongTinThanhToan?: Json | null
         }
         Relationships: []
       }
       ThanhToan: {
         Row: {
-          maDuAn: number | null
           maGiaoDich: number
+          maDuAn: number | null
           maNguoiNhan: string | null
-          moTaGiaoDich: string | null
-          ngayGiaoDich: string | null
           soTien: number | null
+          moTaGiaoDich: string | null
           trangThaiThanhToan: string | null
+          ngayGiaoDich: string | null
         }
         Insert: {
-          maDuAn?: number | null
           maGiaoDich?: number
+          maDuAn?: number | null
           maNguoiNhan?: string | null
-          moTaGiaoDich?: string | null
-          ngayGiaoDich?: string | null
           soTien?: number | null
+          moTaGiaoDich?: string | null
           trangThaiThanhToan?: string | null
+          ngayGiaoDich?: string | null
         }
         Update: {
-          maDuAn?: number | null
           maGiaoDich?: number
+          maDuAn?: number | null
           maNguoiNhan?: string | null
-          moTaGiaoDich?: string | null
-          ngayGiaoDich?: string | null
           soTien?: number | null
+          moTaGiaoDich?: string | null
           trangThaiThanhToan?: string | null
+          ngayGiaoDich?: string | null
         }
         Relationships: [
           {
@@ -413,40 +513,40 @@ export type Database = {
       }
       TinNhan: {
         Row: {
-          daXem: boolean | null
-          maNguoiGui: string | null
-          maNguoiNhan: string | null
           maTinNhan: number
-          ngayGui: string | null
+          maKenh: number | null
+          maNguoiGui: string | null
           noiDung: string | null
+          fileDinhKem: string | null
+          thoiGianGui: string | null
         }
         Insert: {
-          daXem?: boolean | null
-          maNguoiGui?: string | null
-          maNguoiNhan?: string | null
           maTinNhan?: number
-          ngayGui?: string | null
+          maKenh?: number | null
+          maNguoiGui?: string | null
           noiDung?: string | null
+          fileDinhKem?: string | null
+          thoiGianGui?: string | null
         }
         Update: {
-          daXem?: boolean | null
-          maNguoiGui?: string | null
-          maNguoiNhan?: string | null
           maTinNhan?: number
-          ngayGui?: string | null
+          maKenh?: number | null
+          maNguoiGui?: string | null
           noiDung?: string | null
+          fileDinhKem?: string | null
+          thoiGianGui?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: 'TinNhan_maNguoiGui_fkey'
-            columns: ['maNguoiGui']
+            foreignKeyName: 'TinNhan_maKenh_fkey'
+            columns: ['maKenh']
             isOneToOne: false
-            referencedRelation: 'NguoiDung'
-            referencedColumns: ['maNguoiDung']
+            referencedRelation: 'KenhChat'
+            referencedColumns: ['maKenh']
           },
           {
-            foreignKeyName: 'TinNhan_maNguoiNhan_fkey'
-            columns: ['maNguoiNhan']
+            foreignKeyName: 'TinNhan_maNguoiGui_fkey'
+            columns: ['maNguoiGui']
             isOneToOne: false
             referencedRelation: 'NguoiDung'
             referencedColumns: ['maNguoiDung']
@@ -455,31 +555,28 @@ export type Database = {
       }
       UngTuyen: {
         Row: {
-          fileCV: Json | null
-          ghiChuUngTuyen: string | null
-          maDuAn: number
           maUngTuyen: number
+          maDuAn: number
           maUngVien: string
+          traLoiKhaoSat: Json | null
+          trangThaiUngTuyen: string
           ngayUngTuyen: string | null
-          trangThaiUngTuyen: string | null
         }
         Insert: {
-          fileCV?: Json | null
-          ghiChuUngTuyen?: string | null
-          maDuAn: number
           maUngTuyen?: number
+          maDuAn: number
           maUngVien: string
+          traLoiKhaoSat?: Json | null
+          trangThaiUngTuyen: string
           ngayUngTuyen?: string | null
-          trangThaiUngTuyen?: string | null
         }
         Update: {
-          fileCV?: Json | null
-          ghiChuUngTuyen?: string | null
-          maDuAn?: number
           maUngTuyen?: number
+          maDuAn?: number
           maUngVien?: string
+          traLoiKhaoSat?: Json | null
+          trangThaiUngTuyen?: string
           ngayUngTuyen?: string | null
-          trangThaiUngTuyen?: string | null
         }
         Relationships: [
           {

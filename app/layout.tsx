@@ -1,4 +1,5 @@
 import './globals.css'
+import QueryProvider from '@/components/providers/query-provider'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { Toaster } from '@/ui/sonner'
 import { Inter } from 'next/font/google'
@@ -24,10 +25,12 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning className={inter.variable}>
       <body className={`antialiased`}>
-        <ThemeProvider>
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider>
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   )

@@ -1,6 +1,4 @@
 'use client'
-
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Bug, Menu, User as UserIcon } from 'lucide-react'
 
@@ -22,37 +20,24 @@ import {
 import { ThemeToggle } from '@/ui/theme-toggle'
 
 import { supabase } from '@/lib/supabase/client'
-import { getFullUser, type NguoiDung } from '@/app/_services/data-service'
-import { type User } from '@supabase/supabase-js'
+import { useAuthUser, useNguoiDung } from '@/app/_services/queries'
+import { useQueryClient } from '@tanstack/react-query'
 
 export default function Navbar() {
-  const [authUser, setAuthUser] = useState<User | null>(null)
-  const [profile, setProfile] = useState<NguoiDung | null>(null)
-  const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
 
-  // Load user + profile từ data-service
-  useEffect(() => {
-    async function loadUser() {
-      setLoading(true)
-      const { user, nguoiDung } = await getFullUser()
-      setAuthUser(user)
-      setProfile(nguoiDung)
-      setLoading(false)
-    }
+  // React Query Hooks
+  const { data: authUser, isLoading: isLoadingUser } = useAuthUser()
+  const { data: profile, isLoading: isLoadingProfile } = useNguoiDung(
+    authUser?.id
+  )
 
-    loadUser()
-
-    const { data: listener } = supabase.auth.onAuthStateChange(() => {
-      loadUser()
-    })
-
-    return () => listener?.subscription?.unsubscribe()
-  }, [])
+  const loading = isLoadingUser || isLoadingProfile
 
   async function handleLogout() {
     await supabase.auth.signOut()
-    setAuthUser(null)
-    setProfile(null)
+    // Invalidate queries to clear sensitive data
+    queryClient.clear()
     window.location.href = '/'
   }
 

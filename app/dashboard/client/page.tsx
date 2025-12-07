@@ -9,16 +9,16 @@ import { PostProjectButton } from '@/app/_components/dashboard/action-buttons'
 
 export default async function ClientDashboard() {
   const supabase = await createClient()
-  const { nguoiDung } = await getFullUser(supabase)
+  const { nguoiDung, hoSo } = await getFullUser(supabase)
 
   return (
     <div className="flex flex-col gap-6">
-      <ProfileAlert profile={nguoiDung} />
+      <ProfileAlert profile={nguoiDung} hoSo={hoSo} />
 
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Tổng quan</h1>
         <div className="flex items-center gap-2">
-          <PostProjectButton profile={nguoiDung} />
+          <PostProjectButton profile={nguoiDung} hoSo={hoSo} />
         </div>
       </div>
 

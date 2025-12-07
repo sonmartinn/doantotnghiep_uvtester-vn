@@ -5,15 +5,18 @@ import Link from 'next/link'
 import { Button } from '@/ui/button'
 import {
   checkProfileCompletion,
-  type NguoiDung
+  type NguoiDung,
+  type HoSoTester,
+  type HoSoClient
 } from '@/app/_services/data-service'
 
 interface ProfileAlertProps {
   profile: NguoiDung | null
+  hoSo: HoSoTester | HoSoClient | null
 }
 
-export default function ProfileAlert({ profile }: ProfileAlertProps) {
-  const { percent, missing } = checkProfileCompletion(profile)
+export default function ProfileAlert({ profile, hoSo }: ProfileAlertProps) {
+  const { percent, missing } = checkProfileCompletion(profile, hoSo)
 
   // Nếu hoàn thiện 100% thì không hiện gì
   if (percent === 100) return null
