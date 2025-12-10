@@ -17,25 +17,24 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/ui/select'
+import { Info } from 'lucide-react'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/app/_components/ui/tooltip'
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form'
+import { useFormContext } from 'react-hook-form'
 
-interface BasicInfoState {
-  hoTen: string
-  gioiTinh: string
-  ngaySinh: string
-  soNamKinhNghiem: string
-  gioiThieu: string
-  linkLinkedIn: string
-}
-
-interface BasicInfoTabProps {
-  data: BasicInfoState
-  onChange: (data: BasicInfoState) => void
-}
-
-export function BasicInfoTab({ data, onChange }: BasicInfoTabProps) {
-  const handleChange = (field: keyof BasicInfoState, value: string) => {
-    onChange({ ...data, [field]: value })
-  }
+export function BasicInfoTab() {
+  const { control } = useFormContext()
 
   return (
     <Card>
@@ -47,65 +46,133 @@ export function BasicInfoTab({ data, onChange }: BasicInfoTabProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label>Họ và Tên</Label>
-            <Input
-              value={data.hoTen}
-              onChange={e => handleChange('hoTen', e.target.value)}
-              placeholder="Nguyễn Văn A"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Giới tính</Label>
-            <Select
-              value={data.gioiTinh}
-              onValueChange={v => handleChange('gioiTinh', v)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn giới tính" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Nam">Nam</SelectItem>
-                <SelectItem value="Nữ">Nữ</SelectItem>
-                <SelectItem value="Khác">Khác</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Ngày sinh</Label>
-            <Input
-              type="date"
-              value={data.ngaySinh}
-              onChange={e => handleChange('ngaySinh', e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Số năm kinh nghiệm</Label>
-            <Input
-              type="number"
-              value={data.soNamKinhNghiem}
-              onChange={e => handleChange('soNamKinhNghiem', e.target.value)}
-              placeholder="Ví dụ: 2"
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label>LinkedIn Profile</Label>
-          <Input
-            value={data.linkLinkedIn}
-            onChange={e => handleChange('linkLinkedIn', e.target.value)}
-            placeholder="https://linkedin.com/in/..."
+          <FormField
+            control={control}
+            name="hoTen"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Họ và Tên <span className="text-destructive">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="Nguyễn Văn A" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="gioiTinh"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Giới tính <span className="text-destructive">*</span>
+                </FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Chọn giới tính" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Nam">Nam</SelectItem>
+                    <SelectItem value="Nữ">Nữ</SelectItem>
+                    <SelectItem value="Khác">Khác</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="ngaySinh"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Ngày sinh <span className="text-destructive">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="soNamKinhNghiem"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Số năm kinh nghiệm <span className="text-destructive">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="Ví dụ: 2" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
         </div>
-        <div className="space-y-2">
-          <Label>Giới thiệu ngắn</Label>
-          <Textarea
-            value={data.gioiThieu}
-            onChange={e => handleChange('gioiThieu', e.target.value)}
-            placeholder="Hãy viết đôi dòng giới thiệu về bản thân và kinh nghiệm của bạn..."
-            className="h-32"
-          />
-        </div>
+
+        <FormField
+          control={control}
+          name="linkLinkedIn"
+          render={({ field }) => (
+            <FormItem>
+              <div className="flex items-center gap-2">
+                <FormLabel>LinkedIn Profile</FormLabel>
+                <TooltipProvider>
+                  <Tooltip delayDuration={300}>
+                    <TooltipTrigger asChild>
+                      <Info className="text-muted-foreground hover:text-foreground h-4 w-4 cursor-pointer" />
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-popover text-popover-foreground max-w-sm p-4 text-sm shadow-xl">
+                      <p>
+                        Việc cung cấp URL hồ sơ LinkedIn của bạn cho phép chúng
+                        tôi xác minh danh tính của bạn tốt hơn. Sau khi danh
+                        tính của bạn được xác minh, bạn sẽ có cơ hội tham gia
+                        những dự án thú vị và được trả lương cao hơn.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <FormControl>
+                <Input
+                  placeholder="https://linkedin.com/in/..."
+                  {...field}
+                  value={field.value || ''}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="gioiThieu"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Giới thiệu ngắn</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Hãy viết đôi dòng giới thiệu về bản thân và kinh nghiệm của bạn..."
+                  className="h-32"
+                  {...field}
+                  value={field.value || ''}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </CardContent>
     </Card>
   )

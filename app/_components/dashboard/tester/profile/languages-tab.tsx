@@ -8,7 +8,6 @@ import {
   CardDescription
 } from '@/ui/card'
 import { Input } from '@/ui/input'
-import { Label } from '@/ui/label'
 import { Button } from '@/ui/button'
 import { Separator } from '@/ui/separator'
 import { Plus, Trash2 } from 'lucide-react'
@@ -19,30 +18,23 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/ui/select'
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form'
+import { useFormContext, useFieldArray } from 'react-hook-form'
+import { LANGUAGES } from '@/app/_constants/languages'
 
-export interface LanguageItem {
-  id: string
-  name: string
-  level: string
-}
+export function LanguagesTab() {
+  const { control } = useFormContext()
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'ngonNguKhac'
+  })
 
-interface LanguagesTabProps {
-  nativeLang: string
-  otherLangs: LanguageItem[]
-  onNativeLangChange: (value: string) => void
-  onAddLanguage: () => void
-  onRemoveLanguage: (id: string) => void
-  onUpdateLanguage: (id: string, field: 'name' | 'level', value: string) => void
-}
-
-export function LanguagesTab({
-  nativeLang,
-  otherLangs,
-  onNativeLangChange,
-  onAddLanguage,
-  onRemoveLanguage,
-  onUpdateLanguage
-}: LanguagesTabProps) {
   return (
     <Card>
       <CardHeader>
@@ -52,69 +44,123 @@ export function LanguagesTab({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-2">
-          <Label>Ngôn ngữ chính (Mẹ đẻ)</Label>
-          <Input
-            value={nativeLang}
-            onChange={e => onNativeLangChange(e.target.value)}
-            placeholder="Ví dụ: Tiếng Việt"
-          />
-        </div>
+        <FormField
+          control={control}
+          name="ngonNguChinh"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Ngôn ngữ chính (Mẹ đẻ)</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="w-5/6">
+                    <SelectValue placeholder="Chọn ngôn ngữ chính" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent className="max-h-[200px]">
+                  {LANGUAGES.map(lang => (
+                    <SelectItem key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <Separator />
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <Label>Ngôn ngữ khác / Ngoại ngữ</Label>
-            <Button variant="outline" size="sm" onClick={onAddLanguage}>
+            <FormLabel>Ngôn ngữ khác / Ngoại ngữ</FormLabel>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                append({ id: crypto.randomUUID(), name: '', level: 'Cơ bản' })
+              }
+            >
               <Plus className="mr-2 h-4 w-4" /> Thêm ngôn ngữ
             </Button>
           </div>
 
-          {otherLangs.length === 0 && (
+          {fields.length === 0 && (
             <p className="text-muted-foreground text-sm italic">
               Chưa có ngôn ngữ nào được thêm.
             </p>
           )}
 
-          {otherLangs.map(lang => (
-            <div key={lang.id} className="flex items-end gap-4">
+          {fields.map((field, index) => (
+            <div key={field.id} className="flex items-baseline-last gap-10">
               <div className="flex-1 space-y-1">
-                <Label className="text-muted-foreground text-xs">
-                  Tên ngôn ngữ
-                </Label>
-                <Input
-                  value={lang.name}
-                  onChange={e =>
-                    onUpdateLanguage(lang.id, 'name', e.target.value)
-                  }
-                  placeholder="VD: Tiếng Anh"
+                <FormField
+                  control={control}
+                  name={`ngonNguKhac.${index}.name`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-muted-foreground text-xs">
+                        Tên ngôn ngữ
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Chọn ngôn ngữ" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="max-h-[200px]">
+                          {LANGUAGES.map(lang => (
+                            <SelectItem key={lang.value} value={lang.value}>
+                              {lang.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
               <div className="w-[180px] space-y-1">
-                <Label className="text-muted-foreground text-xs">
-                  Trình độ
-                </Label>
-                <Select
-                  value={lang.level}
-                  onValueChange={v => onUpdateLanguage(lang.id, 'level', v)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Cơ bản">Cơ bản</SelectItem>
-                    <SelectItem value="Trung bình">Trung bình</SelectItem>
-                    <SelectItem value="Thành thạo">Thành thạo</SelectItem>
-                    <SelectItem value="Chuyên gia">Chuyên gia</SelectItem>
-                  </SelectContent>
-                </Select>
+                <FormField
+                  control={control}
+                  name={`ngonNguKhac.${index}.level`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-muted-foreground text-xs">
+                        Trình độ
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Cơ bản">Cơ bản</SelectItem>
+                          <SelectItem value="Trung bình">Trung bình</SelectItem>
+                          <SelectItem value="Thành thạo">Thành thạo</SelectItem>
+                          <SelectItem value="Chuyên gia">Chuyên gia</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               <Button
+                type="button"
                 variant="ghost"
                 size="icon"
                 className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                onClick={() => onRemoveLanguage(lang.id)}
+                onClick={() => remove(index)}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>

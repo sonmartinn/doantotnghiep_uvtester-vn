@@ -1,10 +1,14 @@
 'use client'
 
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Save } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useForm, Resolver } from 'react-hook-form'
 import { toast } from 'sonner'
+import { z } from 'zod'
 
 import { Button } from '@/ui/button'
+import { Form } from '@/ui/form'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs'
 
 // Service Imports (Queries)
@@ -20,11 +24,77 @@ import { HoSoTester } from '@/app/_services/data-service'
 // Import Tab Components
 import { AddressTab } from '@/app/_components/dashboard/tester/profile/address-tab'
 import { BasicInfoTab } from '@/app/_components/dashboard/tester/profile/basic-info-tab'
-import {
-  LanguageItem,
-  LanguagesTab
-} from '@/app/_components/dashboard/tester/profile/languages-tab'
+import { LanguagesTab } from '@/app/_components/dashboard/tester/profile/languages-tab'
 import { TestingSettingsTab } from '@/app/_components/dashboard/tester/profile/testing-settings-tab'
+
+// Zod Schema
+const profileSchema = z.object({
+  // Basic Info
+  hoTen: z.string().min(1, 'Họ và tên là bắt buộc'),
+  gioiTinh: z.string({ message: 'Vui lòng chọn giới tính' }),
+  ngaySinh: z.string().min(1, 'Ngày sinh là bắt buộc'),
+  soNamKinhNghiem: z.coerce
+    .number({ message: 'Số năm kinh nghiệm là bắt buộc' })
+    .min(0, 'Số năm kinh nghiệm phải >= 0'),
+  gioiThieu: z.string().optional(),
+  linkLinkedIn: z
+    .string()
+    .optional()
+    .refine(
+      val => {
+        if (!val) return true
+        const urlPattern = new RegExp(
+          '^(https?:\\/\\/)?' +
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+            '((\\d{1,3}\\.){3}\\d{1,3}))' +
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+            '(\\?[;&a-z\\d%_.~+=-]*)?' +
+            '(\\#[-a-z\\d_]*)?$',
+          'i'
+        )
+        return urlPattern.test(val)
+      },
+      { message: 'LinkedIn đường dẫn không hợp lệ' }
+    ),
+
+  // Address (Nested not used here to keep simplified state logic compatible with existing tabs if they are not refactored yet.
+  // Ideally, AddressTab should also use RHF, but for now we might keep state separate or just register them manually.
+  // actually, let's keep AddressTab as controlled component for now to minimize risk, OR refactor it too.)
+  // Wait, if I wrap BasicInfoTab in Form, I should probably do same for others or pass data.
+  // The User request specifically asked to refactor the PAGE.
+  // Let's integrate Address into schema.
+  diaChi: z
+    .object({
+      city: z.string().min(1, 'Vui lòng chọn Tỉnh/Thành phố'),
+      ward: z.string().min(1, 'Vui lòng chọn Phường/Xã'),
+      details: z.string().min(1, 'Vui lòng nhập địa chỉ cụ thể')
+    })
+    .optional(),
+  ngonNguChinh: z.string().min(1, 'Vui lòng nhập ngôn ngữ chính'),
+  ngonNguKhac: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string().min(1, 'Tên ngôn ngữ không được để trống'),
+        level: z.string().min(1, 'Vui lòng chọn trình độ')
+      })
+    )
+    .optional(),
+  thongTinKiemThu: z
+    .object({
+      willing_to_travel: z.boolean().optional(),
+      willing_to_payment_testing: z.boolean().optional(),
+      testing_fields: z.array(z.string()).optional(),
+      programming_languages: z.array(z.string()).optional(),
+      app_types: z.array(z.string()).optional(),
+      payment_testing: z.array(z.string()).optional(),
+      internet_providers: z.string().optional(),
+      weekly_availability: z.coerce.number().optional()
+    })
+    .optional()
+})
+
+type ProfileValues = z.infer<typeof profileSchema>
 
 export default function TesterProfilePage() {
   // 1. Queries
@@ -34,91 +104,100 @@ export default function TesterProfilePage() {
   )
   const { data: hoSo, isLoading: isLoadingHoSo } = useHoSoTester(user?.id)
 
+  const isLoading = isLoadingUser || isLoadingNguoiDung || isLoadingHoSo
+
   // 2. Mutations
   const updateNguoiDungMutation = useUpdateNguoiDung()
   const updateHoSoTesterMutation = useUpdateHoSoTester()
 
-  // Data State (Form)
-  // Basic Info
-  const [basicInfo, setBasicInfo] = useState({
-    hoTen: '',
-    gioiTinh: 'Khác',
-    ngaySinh: '',
-    soNamKinhNghiem: '',
-    gioiThieu: '',
-    linkLinkedIn: ''
+  // 3. Form Setup
+  const form = useForm<ProfileValues>({
+    resolver: zodResolver(profileSchema) as Resolver<ProfileValues>,
+    defaultValues: {
+      hoTen: '',
+      gioiTinh: '', // Initialize as empty string to avoid uncontrolled component warning
+      ngaySinh: '',
+      soNamKinhNghiem: 0,
+      gioiThieu: '',
+      linkLinkedIn: '',
+      diaChi: { city: '', ward: '', details: '' }
+    }
   })
 
-  // Address
-  const [address, setAddress] = useState({
-    city: '',
-    ward: '',
-    details: ''
-  })
-
-  // Languages
-  const [nativeLang, setNativeLang] = useState('Tiếng Việt')
-  const [otherLangs, setOtherLangs] = useState<LanguageItem[]>([])
-
-  // Testing Settings (Dynamic)
-  const [testingSettings, setTestingSettings] = useState<Record<string, any>>(
-    {}
-  )
-
-  // Flag to track if form is initialized to prevent overwriting user edits
+  // Additional State for Complex Fields (Languages, Dynamic Settings)
+  // These are harder to map directly to Zod without refactoring their sub-components heavily.
+  // We will keep them as state for now and submit them alongside form data.
+  // OR: register them into the form as 'hidden' fields.
+  // For safety and speed, let's keep them as state and merge on submit.
   const [isInitialized, setIsInitialized] = useState(false)
 
-  // 3. Effect: Populate Form when Data Loads
+  // 4. Populate Form
   useEffect(() => {
-    if (user && nguoiDung && !isInitialized) {
-      // Parse Address
-      let addr = { city: '', ward: '', details: '' }
-      if (nguoiDung.diaChi && typeof nguoiDung.diaChi === 'object') {
-        addr = { ...addr, ...(nguoiDung.diaChi as any) }
-      }
+    if (
+      user &&
+      nguoiDung &&
+      !isLoadingUser &&
+      !isLoadingNguoiDung &&
+      !isLoadingHoSo
+    ) {
+      // Check if we need to initialize or re-initialize (if data is missing in form)
+      const currentValues = form.getValues()
+      const needsInit =
+        !isInitialized || (currentValues.gioiTinh === '' && nguoiDung.gioiTinh)
 
-      setBasicInfo(prev => ({
-        ...prev,
-        hoTen: nguoiDung.hoTen || '',
-        gioiTinh: nguoiDung.gioiTinh || 'Khác',
-        ngaySinh: nguoiDung.ngaySinh || '',
-        gioiThieu: nguoiDung.gioiThieu || '',
-        linkLinkedIn: nguoiDung.linkLinkedIn || ''
-      }))
-      setAddress(addr)
+      if (needsInit) {
+        let addr = { city: '', ward: '', details: '' }
+        if (nguoiDung.diaChi && typeof nguoiDung.diaChi === 'object') {
+          addr = { ...addr, ...(nguoiDung.diaChi as any) }
+        }
 
-      // Tester Specifics
-      if (hoSo) {
         const testerProfile = hoSo as HoSoTester
-        setBasicInfo(prev => ({
-          ...prev,
-          soNamKinhNghiem: testerProfile.soNamKinhNghiem?.toString() || ''
-        }))
-        setNativeLang(testerProfile.ngonNguChinh || '')
 
-        if (
-          testerProfile.ngonNguKhac &&
-          Array.isArray(testerProfile.ngonNguKhac)
-        ) {
-          setOtherLangs(testerProfile.ngonNguKhac as any[])
-        }
+        form.reset({
+          hoTen: nguoiDung.hoTen || '',
+          gioiTinh: nguoiDung.gioiTinh ? nguoiDung.gioiTinh.trim() : '',
+          ngaySinh: nguoiDung.ngaySinh || '',
+          gioiThieu: nguoiDung.gioiThieu || '',
+          linkLinkedIn: nguoiDung.linkLinkedIn || '',
+          soNamKinhNghiem: testerProfile?.soNamKinhNghiem || 0,
+          diaChi: addr,
+          ngonNguChinh: testerProfile?.ngonNguChinh || '',
+          ngonNguKhac: (testerProfile?.ngonNguKhac as any[]) || [],
+          thongTinKiemThu: (() => {
+            const info =
+              (testerProfile?.thongTinKiemThu as Record<string, any>) || {}
+            return {
+              ...info,
+              testing_fields: Array.isArray(info.testing_fields)
+                ? info.testing_fields
+                : info.testing_fields
+                  ? [info.testing_fields]
+                  : [],
+              programming_languages: Array.isArray(info.programming_languages)
+                ? info.programming_languages
+                : info.programming_languages
+                  ? [info.programming_languages]
+                  : []
+            }
+          })()
+        })
 
-        if (
-          testerProfile.thongTinKiemThu &&
-          typeof testerProfile.thongTinKiemThu === 'object'
-        ) {
-          setTestingSettings(
-            testerProfile.thongTinKiemThu as Record<string, any>
-          )
-        }
+        setIsInitialized(true)
       }
-
-      setIsInitialized(true)
     }
-  }, [user, nguoiDung, hoSo, isInitialized])
+  }, [
+    user,
+    nguoiDung,
+    hoSo,
+    isInitialized,
+    form,
+    isLoadingUser,
+    isLoadingNguoiDung,
+    isLoadingHoSo
+  ])
 
   // Handlers
-  const handleSave = async () => {
+  const onSubmit = async (values: ProfileValues) => {
     if (!user) return
 
     try {
@@ -126,12 +205,12 @@ export default function TesterProfilePage() {
       await updateNguoiDungMutation.mutateAsync({
         id: user.id,
         data: {
-          hoTen: basicInfo.hoTen,
-          gioiTinh: basicInfo.gioiTinh,
-          ngaySinh: basicInfo.ngaySinh,
-          gioiThieu: basicInfo.gioiThieu,
-          linkLinkedIn: basicInfo.linkLinkedIn,
-          diaChi: address // Save as JSON
+          hoTen: values.hoTen,
+          gioiTinh: values.gioiTinh,
+          ngaySinh: values.ngaySinh,
+          gioiThieu: values.gioiThieu,
+          linkLinkedIn: values.linkLinkedIn,
+          diaChi: values.diaChi
         }
       })
 
@@ -139,44 +218,20 @@ export default function TesterProfilePage() {
       await updateHoSoTesterMutation.mutateAsync({
         id: user.id,
         data: {
-          soNamKinhNghiem: parseInt(basicInfo.soNamKinhNghiem) || 0,
-          ngonNguChinh: nativeLang,
-          ngonNguKhac: otherLangs as any,
-          thongTinKiemThu: testingSettings
+          soNamKinhNghiem: values.soNamKinhNghiem,
+          ngonNguChinh: values.ngonNguChinh,
+          ngonNguKhac: values.ngonNguKhac as any,
+          thongTinKiemThu: values.thongTinKiemThu
         }
       })
 
       toast.success('Cập nhật hồ sơ thành công!')
-      // No need to router.refresh() because queryClient invalidates keys
     } catch (error: any) {
       console.error('Error saving profile:', error)
       toast.error('Có lỗi xảy ra: ' + error.message)
     }
   }
 
-  // Language Handlers
-  const addLanguage = () => {
-    setOtherLangs([
-      ...otherLangs,
-      { id: Date.now().toString(), name: '', level: 'Cơ bản' }
-    ])
-  }
-
-  const removeLanguage = (id: string) => {
-    setOtherLangs(otherLangs.filter(l => l.id !== id))
-  }
-
-  const updateLanguage = (
-    id: string,
-    field: 'name' | 'level',
-    value: string
-  ) => {
-    setOtherLangs(
-      otherLangs.map(l => (l.id === id ? { ...l, [field]: value } : l))
-    )
-  }
-
-  const isLoading = isLoadingUser || isLoadingNguoiDung || isLoadingHoSo
   const isSaving =
     updateNguoiDungMutation.isPending || updateHoSoTesterMutation.isPending
 
@@ -194,10 +249,11 @@ export default function TesterProfilePage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Hồ Sơ Tester</h1>
           <p className="text-muted-foreground">
-            Quản lý thông tin cá nhân và kỹ năng kiểm thử của bạn
+            Quản lý thông tin cá nhân và cài đặt kiểm thử giúp bạn khớp với các
+            yêu cầu kiểm thử
           </p>
         </div>
-        <Button onClick={handleSave} disabled={isSaving}>
+        <Button onClick={form.handleSubmit(onSubmit)} disabled={isSaving}>
           {isSaving ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -207,42 +263,40 @@ export default function TesterProfilePage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="basic" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
-          <TabsTrigger value="basic">Thông tin</TabsTrigger>
-          <TabsTrigger value="address">Địa chỉ</TabsTrigger>
-          <TabsTrigger value="languages">Ngôn ngữ</TabsTrigger>
-          <TabsTrigger value="testing">Cài đặt Test</TabsTrigger>
-        </TabsList>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <Tabs defaultValue="basic" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
+              <TabsTrigger value="basic">Thông tin</TabsTrigger>
+              <TabsTrigger value="address">Địa chỉ</TabsTrigger>
+              <TabsTrigger value="languages">Ngôn ngữ</TabsTrigger>
+              <TabsTrigger value="testing">Cài đặt Test</TabsTrigger>
+            </TabsList>
 
-        <div className="mt-6">
-          <TabsContent value="basic">
-            <BasicInfoTab data={basicInfo} onChange={setBasicInfo} />
-          </TabsContent>
+            <div className="mt-6">
+              <TabsContent value="basic">
+                {/* BasicInfoTab now uses useFormContext internally */}
+                <BasicInfoTab />
+              </TabsContent>
 
-          <TabsContent value="address">
-            <AddressTab data={address} onChange={setAddress} />
-          </TabsContent>
+              <TabsContent value="address">
+                {/* AddressTab now uses useFormContext */}
+                <AddressTab />
+              </TabsContent>
 
-          <TabsContent value="languages">
-            <LanguagesTab
-              nativeLang={nativeLang}
-              otherLangs={otherLangs}
-              onNativeLangChange={setNativeLang}
-              onAddLanguage={addLanguage}
-              onRemoveLanguage={removeLanguage}
-              onUpdateLanguage={updateLanguage}
-            />
-          </TabsContent>
+              <TabsContent value="languages">
+                {/* LanguagesTab remains state-driven for now */}
+                <LanguagesTab />
+              </TabsContent>
 
-          <TabsContent value="testing">
-            <TestingSettingsTab
-              settings={testingSettings}
-              onChange={setTestingSettings}
-            />
-          </TabsContent>
-        </div>
-      </Tabs>
+              <TabsContent value="testing">
+                {/* TestingSettingsTab remains state-driven for now */}
+                <TestingSettingsTab />
+              </TabsContent>
+            </div>
+          </Tabs>
+        </form>
+      </Form>
     </div>
   )
 }

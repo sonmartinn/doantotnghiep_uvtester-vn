@@ -60,7 +60,7 @@ export default function Sidebar({ role, className }: SidebarProps) {
     },
     {
       name: 'Cài đặt',
-      href: '/settings',
+      href: '/dashboard/tester/settings',
       icon: Settings
     }
   ]

@@ -1,0 +1,297 @@
+'use client'
+
+import { useEffect } from 'react'
+import { toast } from 'sonner'
+import { Loader2, Save } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+
+import { Button } from '@/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/ui/card'
+import { Input } from '@/ui/input'
+import { Label } from '@/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/ui/select'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/app/_components/ui/form'
+
+import {
+  useAuthUser,
+  useNguoiDung,
+  useUpdateNguoiDung
+} from '@/app/_services/queries'
+
+// Zod Schema
+const paymentSchema = z
+  .object({
+    method: z.enum(['bank', 'momo']),
+    fullName: z
+      .string()
+      .min(1, 'Vui lòng nhập họ và tên chủ tài khoản')
+      .regex(/^[^0-9]*$/, 'Họ và tên không được chứa số')
+      .transform(val => val.toUpperCase()),
+    bankName: z.string().optional(),
+    accountNumber: z
+      .string()
+      .min(1, 'Vui lòng nhập số tài khoản')
+      .regex(/^\d+$/, 'Số tài khoản chỉ được chứa chữ số')
+  })
+  .superRefine((data, ctx) => {
+    if (data.method === 'bank' && !data.bankName) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Vui lòng nhập tên ngân hàng',
+        path: ['bankName']
+      })
+    }
+  })
+
+type PaymentFormValues = z.infer<typeof paymentSchema>
+
+export default function SettingsPage() {
+  const { data: user } = useAuthUser()
+  const { data: nguoiDung, isLoading: isLoadingProfile } = useNguoiDung(
+    user?.id
+  )
+  const updateNguoiDung = useUpdateNguoiDung()
+
+  const form = useForm<PaymentFormValues>({
+    resolver: zodResolver(paymentSchema),
+    defaultValues: {
+      method: 'bank',
+      fullName: '',
+      bankName: '',
+      accountNumber: ''
+    }
+  })
+
+  // Load existing payment info
+  useEffect(() => {
+    if (nguoiDung?.thongTinThanhToan) {
+      const savedInfo = nguoiDung.thongTinThanhToan as any
+      form.reset({
+        method: savedInfo.method || 'bank',
+        fullName: savedInfo.fullName || '',
+        bankName: savedInfo.bankName || '',
+        accountNumber: savedInfo.accountNumber || ''
+      })
+    }
+  }, [nguoiDung, form])
+
+  const onSubmit = async (data: PaymentFormValues) => {
+    try {
+      if (user?.id) {
+        await updateNguoiDung.mutateAsync({
+          id: user.id,
+          data: {
+            thongTinThanhToan: data as any
+          }
+        })
+        toast.success('Đã lưu cài đặt')
+      }
+    } catch (error) {
+      toast.error('Lỗi khi lưu cài đặt')
+      console.error(error)
+    }
+  }
+
+  if (isLoadingProfile) {
+    return (
+      <div className="flex h-[50vh] w-full items-center justify-center">
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
+      </div>
+    )
+  }
+
+  return (
+    <div className="mx-auto max-w-4xl space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Cài đặt</h1>
+        <p className="text-muted-foreground">
+          Quản lý thông tin tài khoản và thanh toán của bạn.
+        </p>
+      </div>
+
+      <div className="grid gap-6">
+        {/* Account Info Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Thông tin tài khoản</CardTitle>
+            <CardDescription>Thông tin đăng nhập của bạn</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-2">
+              <Label>Email</Label>
+              <Input
+                value={user?.email || ''}
+                disabled
+                className="bg-muted"
+                readOnly
+              />
+              <p className="text-muted-foreground text-xs">
+                Email không thể thay đổi vì được dùng để định danh tài khoản.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Payment Info Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Phương thức thanh toán</CardTitle>
+            <CardDescription>
+              Thông tin để nhận thanh toán từ dự án (lương, thưởng...)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <FormField
+                  control={form.control}
+                  name="method"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phương thức nhận tiền</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        key={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Chọn phương thức..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="bank">
+                            Chuyển khoản ngân hàng
+                          </SelectItem>
+                          <SelectItem value="momo">Ví Momo</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Họ và tên (Chủ tài khoản){' '}
+                          <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="NGUYEN VAN A"
+                            {...field}
+                            onChange={e =>
+                              field.onChange(e.target.value.toUpperCase())
+                            }
+                          />
+                        </FormControl>
+                        <div className="bg-muted mt-2 rounded-lg p-4 text-xs">
+                          <p className="text-muted-foreground">
+                            <span className="font-semibold text-red-600 dark:text-red-500">
+                              Lưu ý!
+                            </span>{' '}
+                            Tên chủ tài khoản phải trùng khớp với tên của bạn
+                            (không phân biệt hoa/thường) trên nền tảng này để
+                            tránh các vấn đề phát sinh. Tên tài khoản hiện tại
+                            của bạn trên nền tảng này là:{' '}
+                            <span className="text-foreground font-medium">
+                              {nguoiDung?.hoTen}
+                            </span>
+                          </p>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {form.watch('method') === 'bank' && (
+                    <FormField
+                      control={form.control}
+                      name="bankName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            Tên ngân hàng{' '}
+                            <span className="text-red-500">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="VD: Vietcombank, Techcombank..."
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                  <FormField
+                    control={form.control}
+                    name="accountNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          {form.watch('method') === 'bank'
+                            ? 'Số tài khoản ngân hàng'
+                            : 'Số điện thoại Momo'}{' '}
+                          <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={
+                              form.watch('method') === 'bank'
+                                ? 'Nhập số tài khoản...'
+                                : 'Nhập số điện thoại đăng ký Momo...'
+                            }
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="flex justify-end pt-4">
+                  <Button type="submit">
+                    <Save className="mr-2 h-4 w-4" /> Lưu thông tin
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
