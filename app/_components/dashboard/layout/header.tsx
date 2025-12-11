@@ -20,6 +20,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { type User } from '@supabase/supabase-js'
 import { type NguoiDung } from '@/app/_services/data-service'
+import { useNguoiDung } from '@/app/_services/queries'
 
 interface HeaderProps {
   user: User | null
@@ -29,6 +30,10 @@ interface HeaderProps {
 
 export default function Header({ user, profile, role }: HeaderProps) {
   const router = useRouter()
+  // Fetch latest profile data on client-side to ensure real-time updates
+  const { data: latestProfile } = useNguoiDung(user?.id)
+
+  const displayProfile = latestProfile || profile
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -76,11 +81,12 @@ export default function Header({ user, profile, role }: HeaderProps) {
             <Button variant="ghost" size="icon" className="rounded-full">
               <Avatar className="size-8">
                 <AvatarImage
-                  src={profile?.anhDaiDien || undefined}
-                  alt={profile?.hoTen || 'User'}
+                  src={displayProfile?.anhDaiDien || undefined}
+                  alt={displayProfile?.hoTen || 'User'}
+                  className="object-cover"
                 />
                 <AvatarFallback>
-                  {profile?.hoTen?.charAt(0) || 'U'}
+                  {displayProfile?.hoTen?.charAt(0) || 'U'}
                 </AvatarFallback>
               </Avatar>
               <span className="sr-only">Toggle user menu</span>
@@ -90,7 +96,7 @@ export default function Header({ user, profile, role }: HeaderProps) {
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
                 <p className="text-sm leading-none font-medium">
-                  {profile?.hoTen}
+                  {displayProfile?.hoTen}
                 </p>
                 <p className="text-muted-foreground text-xs leading-none">
                   {user?.email}

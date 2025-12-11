@@ -85,12 +85,12 @@ export default function Sidebar({ role, className }: SidebarProps) {
       icon: LayoutDashboard
     },
     {
-      name: 'Tìm việc làm',
+      name: 'Dự án đang mở',
       href: '/jobs',
       icon: Briefcase
     },
     {
-      name: 'Việc của tôi',
+      name: 'Dự án đã nhận',
       href: '/dashboard/tester/projects',
       icon: FileText
     },

@@ -31,6 +31,7 @@ import { TestingSettingsTab } from '@/app/_components/dashboard/tester/profile/t
 const profileSchema = z.object({
   // Basic Info
   hoTen: z.string().min(1, 'Họ và tên là bắt buộc'),
+  anhDaiDien: z.string().optional(),
   gioiTinh: z.string({ message: 'Vui lòng chọn giới tính' }),
   ngaySinh: z.string().min(1, 'Ngày sinh là bắt buộc'),
   soNamKinhNghiem: z.coerce
@@ -127,6 +128,7 @@ export default function TesterProfilePage() {
     resolver: zodResolver(profileSchema) as Resolver<ProfileValues>,
     defaultValues: {
       hoTen: '',
+      anhDaiDien: '',
       gioiTinh: '', // Initialize as empty string to avoid uncontrolled component warning
       ngaySinh: '',
       soNamKinhNghiem: 0,
@@ -162,6 +164,7 @@ export default function TesterProfilePage() {
 
         form.reset({
           hoTen: nguoiDung.hoTen || '',
+          anhDaiDien: nguoiDung.anhDaiDien || '',
           gioiTinh: nguoiDung.gioiTinh ? nguoiDung.gioiTinh.trim() : '',
           ngaySinh: nguoiDung.ngaySinh || '',
           gioiThieu: nguoiDung.gioiThieu || '',
@@ -213,6 +216,7 @@ export default function TesterProfilePage() {
         id: user.id,
         data: {
           hoTen: values.hoTen,
+          anhDaiDien: values.anhDaiDien,
           gioiTinh: values.gioiTinh,
           ngaySinh: values.ngaySinh,
           gioiThieu: values.gioiThieu,
