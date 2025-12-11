@@ -1,14 +1,14 @@
 'use client'
 
-import { AlertTriangle, ArrowRight } from 'lucide-react'
-import Link from 'next/link'
-import { Button } from '@/ui/button'
 import {
   checkProfileCompletion,
-  type NguoiDung,
+  type HoSoClient,
   type HoSoTester,
-  type HoSoClient
+  type NguoiDung
 } from '@/app/_services/data-service'
+import { Button } from '@/ui/button'
+import { AlertTriangle, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 
 interface ProfileAlertProps {
   profile: NguoiDung | null
@@ -20,6 +20,39 @@ export default function ProfileAlert({ profile, hoSo }: ProfileAlertProps) {
 
   // Nếu hoàn thiện 100% thì không hiện gì
   if (percent === 100) return null
+
+  // Logic xác định Link cần update dựa trên thông tin thiếu
+  // Ưu tiên theo thứ tự: Profile -> Devices -> Settings (Thanh toán)
+  let updateLink = '/dashboard/settings' // Default fallback
+
+  if (profile?.vaiTro === 'tester') {
+    // 1. Check Profile (Các trường cơ bản + chuyên môn)
+    if (
+      !profile.diaChi ||
+      !profile.gioiThieu ||
+      (hoSo as HoSoTester)?.soNamKinhNghiem === undefined ||
+      (hoSo as HoSoTester)?.soNamKinhNghiem === null ||
+      !(hoSo as HoSoTester)?.ngonNguChinh ||
+      !(hoSo as HoSoTester)?.thongTinKiemThu
+    ) {
+      updateLink = '/dashboard/tester/profile'
+    }
+    // 2. Check Devices
+    else if (
+      !(hoSo as HoSoTester)?.thongTinThietBi ||
+      (Array.isArray(((hoSo as HoSoTester).thongTinThietBi as any)?.devices) &&
+        ((hoSo as HoSoTester).thongTinThietBi as any).devices.length === 0)
+    ) {
+      updateLink = '/dashboard/tester/devices'
+    }
+    // 3. Check Settings (Payment)
+    else if (!profile.thongTinThanhToan) {
+      updateLink = '/dashboard/tester/settings'
+    }
+  } else if (profile?.vaiTro === 'client') {
+    // Client logic similar if needed
+    updateLink = '/dashboard/client/profile' // Example
+  }
 
   return (
     <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
@@ -42,7 +75,7 @@ export default function ProfileAlert({ profile, hoSo }: ProfileAlertProps) {
               size="sm"
               className="border-amber-300 text-amber-800 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-300 dark:hover:bg-amber-900"
             >
-              <Link href="/dashboard/settings">
+              <Link href={updateLink}>
                 Cập nhật ngay <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>

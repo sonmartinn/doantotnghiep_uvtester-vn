@@ -57,12 +57,6 @@ const profileSchema = z.object({
       { message: 'LinkedIn đường dẫn không hợp lệ' }
     ),
 
-  // Address (Nested not used here to keep simplified state logic compatible with existing tabs if they are not refactored yet.
-  // Ideally, AddressTab should also use RHF, but for now we might keep state separate or just register them manually.
-  // actually, let's keep AddressTab as controlled component for now to minimize risk, OR refactor it too.)
-  // Wait, if I wrap BasicInfoTab in Form, I should probably do same for others or pass data.
-  // The User request specifically asked to refactor the PAGE.
-  // Let's integrate Address into schema.
   diaChi: z
     .object({
       city: z.string().min(1, 'Vui lòng chọn Tỉnh/Thành phố'),
@@ -91,7 +85,25 @@ const profileSchema = z.object({
       internet_providers: z.string().optional(),
       weekly_availability: z.coerce.number().optional()
     })
-    .optional()
+    .refine(
+      data => {
+        // Check if at least one field has a "truthy" or meaningful value
+        return (
+          data.willing_to_travel === true ||
+          data.willing_to_payment_testing === true ||
+          (data.testing_fields && data.testing_fields.length > 0) ||
+          (data.programming_languages &&
+            data.programming_languages.length > 0) ||
+          (data.app_types && data.app_types.length > 0) ||
+          (data.payment_testing && data.payment_testing.length > 0) ||
+          (data.internet_providers && data.internet_providers.length > 0) ||
+          (data.weekly_availability && data.weekly_availability > 0)
+        )
+      },
+      {
+        message: 'Vui lòng hoàn thiện ít nhất một thông tin trong Cài đặt Test'
+      }
+    )
 })
 
 type ProfileValues = z.infer<typeof profileSchema>
@@ -124,11 +136,6 @@ export default function TesterProfilePage() {
     }
   })
 
-  // Additional State for Complex Fields (Languages, Dynamic Settings)
-  // These are harder to map directly to Zod without refactoring their sub-components heavily.
-  // We will keep them as state for now and submit them alongside form data.
-  // OR: register them into the form as 'hidden' fields.
-  // For safety and speed, let's keep them as state and merge on submit.
   const [isInitialized, setIsInitialized] = useState(false)
 
   // 4. Populate Form
@@ -232,6 +239,41 @@ export default function TesterProfilePage() {
     }
   }
 
+  const onInvalid = (errors: any) => {
+    const FIELD_LABELS: Record<string, string> = {
+      hoTen: 'Họ và tên',
+      gioiTinh: 'Giới tính',
+      ngaySinh: 'Ngày sinh',
+      soNamKinhNghiem: 'Số năm kinh nghiệm',
+      gioiThieu: 'Giới thiệu',
+      linkLinkedIn: 'LinkedIn',
+      diaChi: 'Địa chỉ',
+      ngonNguChinh: 'Ngôn ngữ chính',
+      ngonNguKhac: 'Ngôn ngữ khác',
+      thongTinKiemThu:
+        'Vui lòng hoàn thiện ít nhất một thông tin trong Cài đặt Test'
+    }
+
+    const errorFields = Object.keys(errors)
+      .map(key => FIELD_LABELS[key] || key)
+      .filter(Boolean)
+
+    toast.error('Vui lòng kiểm tra lại thông tin', {
+      description: (
+        <div className="mt-2 text-sm text-red-500">
+          <p className="text-foreground mb-1 font-semibold">Các trường lỗi:</p>
+          <ul className="list-disc space-y-1 pl-4">
+            {errorFields.map(field => (
+              <li key={field}>{field}</li>
+            ))}
+          </ul>
+        </div>
+      ),
+      duration: 5000
+    })
+    console.error('Form errors:', errors)
+  }
+
   const isSaving =
     updateNguoiDungMutation.isPending || updateHoSoTesterMutation.isPending
 
@@ -253,7 +295,10 @@ export default function TesterProfilePage() {
             yêu cầu kiểm thử
           </p>
         </div>
-        <Button onClick={form.handleSubmit(onSubmit)} disabled={isSaving}>
+        <Button
+          onClick={form.handleSubmit(onSubmit, onInvalid)}
+          disabled={isSaving}
+        >
           {isSaving ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -264,7 +309,10 @@ export default function TesterProfilePage() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form
+          onSubmit={form.handleSubmit(onSubmit, onInvalid)}
+          className="space-y-8"
+        >
           <Tabs defaultValue="basic" className="w-full">
             <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
               <TabsTrigger value="basic">Thông tin</TabsTrigger>

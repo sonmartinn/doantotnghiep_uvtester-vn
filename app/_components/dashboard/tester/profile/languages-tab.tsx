@@ -1,23 +1,6 @@
 'use client'
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription
-} from '@/ui/card'
-import { Input } from '@/ui/input'
-import { Button } from '@/ui/button'
-import { Separator } from '@/ui/separator'
-import { Plus, Trash2 } from 'lucide-react'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/ui/select'
+import { LANGUAGES } from '@/app/_constants/languages'
 import {
   FormControl,
   FormField,
@@ -25,8 +8,24 @@ import {
   FormLabel,
   FormMessage
 } from '@/components/ui/form'
-import { useFormContext, useFieldArray } from 'react-hook-form'
-import { LANGUAGES } from '@/app/_constants/languages'
+import { Button } from '@/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/ui/select'
+import { Separator } from '@/ui/separator'
+import { Plus, Trash2 } from 'lucide-react'
+import { useFieldArray, useFormContext } from 'react-hook-form'
 
 export function LanguagesTab() {
   const { control } = useFormContext()
@@ -49,7 +48,10 @@ export function LanguagesTab() {
           name="ngonNguChinh"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Ngôn ngữ chính (Mẹ đẻ)</FormLabel>
+              <FormLabel>
+                Ngôn ngữ chính (Mẹ đẻ){' '}
+                <span className="text-destructive">*</span>
+              </FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger className="w-5/6">
@@ -155,6 +157,7 @@ export function LanguagesTab() {
                   )}
                 />
               </div>
+
               <Button
                 type="button"
                 variant="ghost"
@@ -166,6 +169,13 @@ export function LanguagesTab() {
               </Button>
             </div>
           ))}
+          <div className="bg-muted text-muted-foreground mt-4 rounded-lg p-4 text-sm">
+            <p>
+              Lưu ý: Trường Ngôn ngữ khác/Ngoại ngữ là không bắt buộc, nhưng
+              chắc chắn rồi trình độ hiểu biết ngoại ngữ của bạn càng cao thì
+              khả năng tiếp cận các dự án càng cao.
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -247,10 +247,12 @@ export function checkProfileCompletion(
 
   // Các trường cơ bản (NguoiDung)
   const basicFields = [
-    { key: 'hoTen', label: 'Họ tên', weight: 10 },
-    { key: 'diaChi', label: 'Địa chỉ', weight: 10 },
-    { key: 'gioiThieu', label: 'Giới thiệu', weight: 10 },
-    { key: 'thongTinThanhToan', label: 'Thông tin thanh toán', weight: 10 }
+    { key: 'hoTen', label: 'Họ tên', weight: 5 },
+    { key: 'gioiTinh', label: 'Giới tính', weight: 5 },
+    { key: 'ngaySinh', label: 'Ngày sinh', weight: 5 },
+    { key: 'diaChi', label: 'Địa chỉ', weight: 5 },
+    { key: 'gioiThieu', label: 'Giới thiệu', weight: 5 },
+    { key: 'thongTinThanhToan', label: 'Thông tin thanh toán', weight: 5 }
   ]
 
   // Check basic fields

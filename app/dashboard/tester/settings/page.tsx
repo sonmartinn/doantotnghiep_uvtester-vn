@@ -16,6 +16,7 @@ import {
   CardTitle
 } from '@/ui/card'
 import { Input } from '@/ui/input'
+import { PasswordInput } from '@/ui/password-input'
 import { Label } from '@/ui/label'
 import {
   Select,
@@ -38,8 +39,19 @@ import {
   useNguoiDung,
   useUpdateNguoiDung
 } from '@/app/_services/queries'
+import { supabase } from '@/lib/supabase/client'
 
-// Zod Schema
+// Zod Schemas
+const passwordChangeSchema = z
+  .object({
+    password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
+    confirmPassword: z.string()
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: 'Mật khẩu xác nhận không khớp',
+    path: ['confirmPassword']
+  })
+
 const paymentSchema = z
   .object({
     method: z.enum(['bank', 'momo']),
@@ -65,6 +77,7 @@ const paymentSchema = z
   })
 
 type PaymentFormValues = z.infer<typeof paymentSchema>
+type PasswordChangeFormValues = z.infer<typeof passwordChangeSchema>
 
 export default function SettingsPage() {
   const { data: user } = useAuthUser()
@@ -80,6 +93,15 @@ export default function SettingsPage() {
       fullName: '',
       bankName: '',
       accountNumber: ''
+    }
+  })
+
+  // Password Form
+  const passwordForm = useForm<PasswordChangeFormValues>({
+    resolver: zodResolver(passwordChangeSchema),
+    defaultValues: {
+      password: '',
+      confirmPassword: ''
     }
   })
 
@@ -109,6 +131,22 @@ export default function SettingsPage() {
       }
     } catch (error) {
       toast.error('Lỗi khi lưu cài đặt')
+      console.error(error)
+    }
+  }
+
+  const onUpdatePassword = async (data: PasswordChangeFormValues) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: data.password
+      })
+
+      if (error) throw error
+
+      toast.success('Đã cập nhật mật khẩu')
+      passwordForm.reset()
+    } catch (error) {
+      toast.error('Lỗi khi cập nhật mật khẩu')
       console.error(error)
     }
   }
@@ -149,6 +187,64 @@ export default function SettingsPage() {
               <p className="text-muted-foreground text-xs">
                 Email không thể thay đổi vì được dùng để định danh tài khoản.
               </p>
+            </div>
+
+            <div className="border-t pt-4">
+              <h4 className="mb-4 text-sm font-medium">Đổi mật khẩu</h4>
+              <Form {...passwordForm}>
+                <form
+                  onSubmit={passwordForm.handleSubmit(onUpdatePassword)}
+                  className="space-y-4"
+                >
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <FormField
+                      control={passwordForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Mật khẩu mới</FormLabel>
+                          <FormControl>
+                            <PasswordInput
+                              placeholder="Nhập mật khẩu mới..."
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={passwordForm.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Xác nhận mật khẩu</FormLabel>
+                          <FormControl>
+                            <PasswordInput
+                              placeholder="Nhập lại mật khẩu..."
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      size="sm"
+                      disabled={passwordForm.formState.isSubmitting}
+                    >
+                      {passwordForm.formState.isSubmitting && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      Cập nhật mật khẩu
+                    </Button>
+                  </div>
+                </form>
+              </Form>
             </div>
           </CardContent>
         </Card>

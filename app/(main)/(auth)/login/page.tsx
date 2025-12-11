@@ -6,12 +6,14 @@ import { ensureNguoiDungExists } from '@/app/_services/data-service'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
@@ -71,13 +73,26 @@ export default function LoginPage() {
             onChange={e => setEmail(e.target.value)}
           />
 
-          <input
-            className="bg-muted/60 text-foreground placeholder:text-muted-foreground focus:bg-card focus:ring-ring w-full rounded-xl px-4 py-3 focus:ring-2 focus:outline-none"
-            type="password"
-            placeholder="Mật khẩu"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-          />
+          <div className="relative">
+            <input
+              className="bg-muted/60 text-foreground placeholder:text-muted-foreground focus:bg-card focus:ring-ring w-full rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:outline-none"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Mật khẩu"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
 
           <div className="flex justify-end">
             <Link

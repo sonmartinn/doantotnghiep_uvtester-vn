@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { Eye, EyeOff } from 'lucide-react'
 
 function RegisterContent() {
   const searchParams = useSearchParams()
@@ -14,6 +15,7 @@ function RegisterContent() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [hoTen, setHoTen] = useState('')
   const [role, setRole] = useState(roleFromURL)
   const [loading, setLoading] = useState(false)
@@ -53,7 +55,7 @@ function RegisterContent() {
         // Redirect to OTP verification page
         router.push(`/verify?email=${encodeURIComponent(email)}`)
       }
-    } catch (err: any) {
+    } catch {
       setLoading(false)
       setErrorMsg('Đã xảy ra lỗi. Vui lòng thử lại.')
     }
@@ -83,14 +85,27 @@ function RegisterContent() {
             required
           />
 
-          <input
-            className="bg-muted/60 text-foreground placeholder:text-muted-foreground focus:bg-card focus:ring-ring w-full rounded-xl px-4 py-3 focus:ring-2 focus:outline-none"
-            type="password"
-            placeholder="Mật khẩu"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
+          <div className="relative">
+            <input
+              className="bg-muted/60 text-foreground placeholder:text-muted-foreground focus:bg-card focus:ring-ring w-full rounded-xl px-4 py-3 pr-10 focus:ring-2 focus:outline-none"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Mật khẩu"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="text-muted-foreground hover:text-foreground absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer"
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
 
           <div className="relative">
             <select
