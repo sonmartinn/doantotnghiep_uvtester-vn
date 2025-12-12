@@ -2,10 +2,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   getNguoiDung,
   getHoSoTester,
+  getHoSoClient,
   updateNguoiDung,
   upsertHoSoTester,
+  upsertHoSoClient,
   type NguoiDung,
-  type HoSoTester
+  type HoSoTester,
+  type HoSoClient
 } from './data-service'
 import { supabase } from '@/lib/supabase/client'
 
@@ -13,7 +16,8 @@ import { supabase } from '@/lib/supabase/client'
 export const KEYS = {
   USER: ['auth_user'],
   NGUOI_DUNG: (id: string) => ['nguoi_dung', id],
-  HOSO_TESTER: (id: string) => ['hoso_tester', id]
+  HOSO_TESTER: (id: string) => ['hoso_tester', id],
+  HOSO_CLIENT: (id: string) => ['hoso_client', id]
 }
 
 // 1. Auth User
@@ -43,6 +47,15 @@ export function useHoSoTester(userId: string | undefined) {
   return useQuery({
     queryKey: KEYS.HOSO_TESTER(userId!),
     queryFn: () => getHoSoTester(userId!),
+    enabled: !!userId
+  })
+}
+
+// 4. Ho So Client
+export function useHoSoClient(userId: string | undefined) {
+  return useQuery({
+    queryKey: KEYS.HOSO_CLIENT(userId!),
+    queryFn: () => getHoSoClient(userId!),
     enabled: !!userId
   })
 }
@@ -87,6 +100,27 @@ export function useUpdateHoSoTester() {
     },
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: KEYS.HOSO_TESTER(id) })
+    }
+  })
+}
+
+export function useUpdateHoSoClient() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      data
+    }: {
+      id: string
+      data: Partial<HoSoClient>
+    }) => {
+      const success = await upsertHoSoClient(id, data)
+      if (!success) throw new Error('Update HoSoClient failed')
+      return success
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: KEYS.HOSO_CLIENT(id) })
     }
   })
 }

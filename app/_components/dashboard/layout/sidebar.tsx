@@ -28,6 +28,7 @@ import {
 import {
   useAuthUser,
   useHoSoTester,
+  useHoSoClient,
   useNguoiDung
 } from '@/app/_services/queries'
 
@@ -42,40 +43,76 @@ export default function Sidebar({ role, className }: SidebarProps) {
   const { data: nguoiDung, isLoading: isLoadingNguoiDung } = useNguoiDung(
     user?.id
   )
-  const { data: hoSo, isLoading: isLoadingHoSo } = useHoSoTester(user?.id)
+  const { data: hoSoTester, isLoading: isLoadingHoSoTester } = useHoSoTester(
+    user?.id
+  )
+  const { data: hoSoClient, isLoading: isLoadingHoSoClient } = useHoSoClient(
+    user?.id
+  )
 
-  const isLoading = isLoadingUser || isLoadingNguoiDung || isLoadingHoSo
+  const isLoading =
+    isLoadingUser ||
+    isLoadingNguoiDung ||
+    (role === 'tester' ? isLoadingHoSoTester : false) ||
+    (role === 'client' ? isLoadingHoSoClient : false)
 
   // -- LOGIC CHECK COMPLETION --
   let profileMissing: string[] = []
   let devicesWarning: string | null = null
   let settingsWarning: string | null = null
 
-  if (!isLoading && role === 'tester') {
-    // 1. Settings
-    if (!nguoiDung?.thongTinThanhToan) {
-      settingsWarning = 'Chưa cập nhật thông tin thanh toán'
-    }
+  if (!isLoading) {
+    if (role === 'tester') {
+      // 1. Settings
+      if (!nguoiDung?.thongTinThanhToan) {
+        settingsWarning = 'Chưa cập nhật thông tin thanh toán'
+      }
 
-    // 2. Devices
-    if (
-      !hoSo?.thongTinThietBi ||
-      (Array.isArray((hoSo.thongTinThietBi as any)?.devices) &&
-        (hoSo.thongTinThietBi as any).devices.length === 0)
-    ) {
-      devicesWarning = 'Chưa thêm thiết bị nào'
-    }
+      // 2. Devices
+      if (
+        !hoSoTester?.thongTinThietBi ||
+        (Array.isArray((hoSoTester.thongTinThietBi as any)?.devices) &&
+          (hoSoTester.thongTinThietBi as any).devices.length === 0)
+      ) {
+        devicesWarning = 'Chưa thêm thiết bị nào'
+      }
 
-    // 3. Profile
-    if (!nguoiDung?.hoTen) profileMissing.push('Họ và tên')
-    if (!nguoiDung?.gioiTinh) profileMissing.push('Giới tính')
-    if (!nguoiDung?.ngaySinh) profileMissing.push('Ngày sinh')
-    if (!nguoiDung?.diaChi) profileMissing.push('Địa chỉ')
-    if (!nguoiDung?.gioiThieu) profileMissing.push('Giới thiệu')
-    if (hoSo?.soNamKinhNghiem === undefined || hoSo?.soNamKinhNghiem === null)
-      profileMissing.push('Số năm kinh nghiệm')
-    if (!hoSo?.ngonNguChinh) profileMissing.push('Ngôn ngữ chính')
-    if (!hoSo?.thongTinKiemThu) profileMissing.push('Thông tin kiểm thử')
+      // 3. Profile
+      if (!nguoiDung?.hoTen) profileMissing.push('Họ và tên')
+      if (!nguoiDung?.gioiTinh) profileMissing.push('Giới tính')
+      if (!nguoiDung?.ngaySinh) profileMissing.push('Ngày sinh')
+      if (!nguoiDung?.diaChi) profileMissing.push('Địa chỉ')
+      if (!nguoiDung?.gioiThieu) profileMissing.push('Giới thiệu')
+      if (
+        hoSoTester?.soNamKinhNghiem === undefined ||
+        hoSoTester?.soNamKinhNghiem === null
+      )
+        profileMissing.push('Số năm kinh nghiệm')
+      if (!hoSoTester?.ngonNguChinh) profileMissing.push('Ngôn ngữ chính')
+      if (!hoSoTester?.thongTinKiemThu)
+        profileMissing.push('Thông tin kiểm thử')
+    } else if (role === 'client') {
+      // Client Checks
+      // Basic Info
+      if (!nguoiDung?.hoTen) profileMissing.push('Họ và tên')
+      if (!nguoiDung?.gioiTinh) profileMissing.push('Giới tính')
+      if (!nguoiDung?.ngaySinh) profileMissing.push('Ngày sinh')
+      if (!nguoiDung?.diaChi) profileMissing.push('Địa chỉ')
+      // Company Info (viTriCongViec is in HoSoClient in my previous analysis, wait. Let me check page.tsx again to be super duplicate-sure. Step 447 shows it in updateHoSoClientMutation data. So YES it is in HoSoClient)
+      // Actually sidebar logic for client:
+      if (!hoSoClient?.tenCongTy) profileMissing.push('Tên công ty')
+      if (!hoSoClient?.viTriCongViec) profileMissing.push('Vị trí công việc') // Moved here
+      if (!hoSoClient?.maSoThue) profileMissing.push('Mã số thuế')
+      if (!hoSoClient?.linhVucHoatDong)
+        profileMissing.push('Lĩnh vực hoạt động')
+      if (!hoSoClient?.quyMoCongTy) profileMissing.push('Quy mô công ty')
+      if (!hoSoClient?.soDienThoai) profileMissing.push('Số điện thoại liên hệ')
+
+      // Settings Check (Client)
+      if (!nguoiDung?.thongTinThanhToan) {
+        settingsWarning = 'Chưa cập nhật thông tin thanh toán'
+      }
+    }
   }
 
   const testerLinks = [
@@ -86,12 +123,12 @@ export default function Sidebar({ role, className }: SidebarProps) {
     },
     {
       name: 'Dự án đang mở',
-      href: '/jobs',
+      href: '/dashboard/tester/open-projects',
       icon: Briefcase
     },
     {
       name: 'Dự án đã nhận',
-      href: '/dashboard/tester/projects',
+      href: '/dashboard/tester/received-projects',
       icon: FileText
     },
     {
@@ -134,17 +171,22 @@ export default function Sidebar({ role, className }: SidebarProps) {
     },
     {
       name: 'Tìm Tester',
-      href: '/testers',
+      href: '/dashboard/client/find-testers',
       icon: Users
     },
     {
       name: 'Tin nhắn',
-      href: '/dashboard/messages',
+      href: '/dashboard/client/messages',
       icon: MessageSquare
     },
     {
+      name: 'Hồ sơ',
+      href: '/dashboard/client/profile',
+      icon: UserCog
+    },
+    {
       name: 'Cài đặt',
-      href: '/settings',
+      href: '/dashboard/client/settings',
       icon: Settings
     }
   ]
@@ -200,6 +242,32 @@ export default function Sidebar({ role, className }: SidebarProps) {
               }
               if (
                 link.href === '/dashboard/tester/settings' &&
+                settingsWarning
+              ) {
+                isWarning = true
+                warningContent = settingsWarning
+              }
+            }
+
+            if (role === 'client') {
+              if (
+                link.href === '/dashboard/client/profile' &&
+                profileMissing.length > 0
+              ) {
+                isWarning = true
+                warningContent = (
+                  <div className="space-y-1">
+                    <p className="font-semibold">Chưa hoàn thiện:</p>
+                    <ul className="list-disc pl-4 text-xs">
+                      {profileMissing.map((item, i) => (
+                        <li key={i}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )
+              }
+              if (
+                link.href === '/dashboard/client/settings' &&
                 settingsWarning
               ) {
                 isWarning = true

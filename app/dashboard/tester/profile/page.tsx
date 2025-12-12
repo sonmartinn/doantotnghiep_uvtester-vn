@@ -281,6 +281,22 @@ export default function TesterProfilePage() {
   const isSaving =
     updateNguoiDungMutation.isPending || updateHoSoTesterMutation.isPending
 
+  // Error checking for Tabs
+  const errors = form.formState.errors
+  const hasBasicError =
+    errors.hoTen ||
+    errors.gioiTinh ||
+    errors.ngaySinh ||
+    errors.soNamKinhNghiem ||
+    errors.gioiThieu ||
+    errors.linkLinkedIn
+
+  const hasAddressError = errors.diaChi
+
+  const hasLangError = errors.ngonNguChinh || errors.ngonNguKhac
+
+  const hasTestError = errors.thongTinKiemThu
+
   if (isLoading && !isInitialized) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -319,10 +335,30 @@ export default function TesterProfilePage() {
         >
           <Tabs defaultValue="basic" className="w-full">
             <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
-              <TabsTrigger value="basic">Thông tin</TabsTrigger>
-              <TabsTrigger value="address">Địa chỉ</TabsTrigger>
-              <TabsTrigger value="languages">Ngôn ngữ</TabsTrigger>
-              <TabsTrigger value="testing">Cài đặt Test</TabsTrigger>
+              <TabsTrigger value="basic" className="relative">
+                Thông tin
+                {hasBasicError && (
+                  <span className="bg-destructive absolute top-2 right-2 h-2 w-2 rounded-full" />
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="address" className="relative">
+                Địa chỉ
+                {hasAddressError && (
+                  <span className="bg-destructive absolute top-2 right-2 h-2 w-2 rounded-full" />
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="languages" className="relative">
+                Ngôn ngữ
+                {hasLangError && (
+                  <span className="bg-destructive absolute top-2 right-2 h-2 w-2 rounded-full" />
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="testing" className="relative">
+                Cài đặt Test
+                {hasTestError && (
+                  <span className="bg-destructive absolute top-2 right-2 h-2 w-2 rounded-full" />
+                )}
+              </TabsTrigger>
             </TabsList>
 
             <div className="mt-6">

@@ -294,9 +294,9 @@ export function checkProfileCompletion(
   else if (nguoiDung.vaiTro === 'client') {
     const clientFields = [
       { key: 'tenCongTy', label: 'Tên công ty', weight: 15 },
-      { key: 'website', label: 'Website', weight: 15 },
+      { key: 'soDienThoai', label: 'Số điện thoại liên hệ', weight: 15 },
       { key: 'linhVucHoatDong', label: 'Lĩnh vực hoạt động', weight: 15 },
-      { key: 'quyMoCongTy', label: 'Quy mô công ty', weight: 15 }
+      { key: 'maSoThue', label: 'Mã số thuế', weight: 15 }
     ]
 
     clientFields.forEach(field => {

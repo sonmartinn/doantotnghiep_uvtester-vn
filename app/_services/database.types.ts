@@ -171,6 +171,7 @@ export type Database = {
           quyMoCongTy: string
           linhVucHoatDong: string
           viTriCongViec: string
+          soDienThoai: string | null
         }
         Insert: {
           maNguoiDung: string
@@ -180,6 +181,7 @@ export type Database = {
           quyMoCongTy: string
           linhVucHoatDong: string
           viTriCongViec: string
+          soDienThoai?: string | null
         }
         Update: {
           maNguoiDung?: string
@@ -189,6 +191,7 @@ export type Database = {
           quyMoCongTy?: string
           linhVucHoatDong?: string
           viTriCongViec?: string
+          soDienThoai?: string | null
         }
         Relationships: [
           {

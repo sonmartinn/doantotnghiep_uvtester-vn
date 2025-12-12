@@ -50,8 +50,25 @@ export default function ProfileAlert({ profile, hoSo }: ProfileAlertProps) {
       updateLink = '/dashboard/tester/settings'
     }
   } else if (profile?.vaiTro === 'client') {
-    // Client logic similar if needed
-    updateLink = '/dashboard/client/profile' // Example
+    // 1. Check Profile (Basic + Company Info)
+    if (
+      !profile.hoTen ||
+      !profile.gioiTinh ||
+      !profile.ngaySinh ||
+      !profile.diaChi ||
+      !(hoSo as HoSoClient)?.tenCongTy ||
+      !(hoSo as HoSoClient)?.viTriCongViec ||
+      !(hoSo as HoSoClient)?.maSoThue ||
+      !(hoSo as HoSoClient)?.linhVucHoatDong ||
+      !(hoSo as HoSoClient)?.quyMoCongTy ||
+      !(hoSo as HoSoClient)?.soDienThoai
+    ) {
+      updateLink = '/dashboard/client/profile'
+    }
+    // 2. Check Settings (Payment)
+    else if (!profile.thongTinThanhToan) {
+      updateLink = '/dashboard/client/settings'
+    }
   }
 
   return (

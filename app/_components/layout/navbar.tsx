@@ -111,7 +111,11 @@ export default function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <button className="hover:bg-muted/60 flex items-center space-x-2 rounded-xl px-3 py-2 transition">
                     <Avatar className="h-9 w-9">
-                      <AvatarImage src={avatarUrl || ''} alt="avatar" />
+                      <AvatarImage
+                        src={avatarUrl || ''}
+                        alt="avatar"
+                        className="object-cover"
+                      />
                       <AvatarFallback>
                         <UserIcon className="text-muted-foreground h-5 w-5" />
                       </AvatarFallback>
@@ -215,7 +219,11 @@ export default function Navbar() {
                     <div className="space-y-4">
                       <div className="bg-muted/40 flex items-center space-x-3 rounded-xl p-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={avatarUrl || ''} alt="avatar" />
+                          <AvatarImage
+                            src={avatarUrl || ''}
+                            alt="avatar"
+                            className="object-cover"
+                          />
                           <AvatarFallback>
                             <UserIcon className="text-muted-foreground h-5 w-5" />
                           </AvatarFallback>
