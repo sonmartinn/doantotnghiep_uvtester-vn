@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 
 /* 1) Design tokens: sinh ra các class như bg-background, text-foreground, bg-primary, ... */
 @theme {

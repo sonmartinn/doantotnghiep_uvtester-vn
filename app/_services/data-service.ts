@@ -6,6 +6,8 @@ import { SupabaseClient, User } from '@supabase/supabase-js'
 export type NguoiDung = Database['public']['Tables']['NguoiDung']['Row']
 export type HoSoTester = Database['public']['Tables']['HoSoTester']['Row']
 export type HoSoClient = Database['public']['Tables']['HoSoClient']['Row']
+export type DuAn = Database['public']['Tables']['DuAn']['Row']
+export type DuAnInsert = Database['public']['Tables']['DuAn']['Insert']
 
 /* =========================================================
    AUTH HELPERS
@@ -317,4 +319,112 @@ export function checkProfileCompletion(
   const percent = total === 0 ? 0 : Math.round((score / total) * 100)
 
   return { percent, missing }
+}
+
+/* =========================================================
+   DuAn (Projects)
+   ========================================================= */
+
+export async function createDuAn(
+  projectData: DuAnInsert,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<DuAn | null> {
+  const { data, error } = await supabaseClient
+    .from('DuAn')
+    .insert(projectData)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('createDuAn error:', error)
+    return null
+  }
+  return data
+}
+
+/* =========================================================
+   KichBanKiemThu (Test Cases)
+   ========================================================= */
+
+export type KichBanInsert =
+  Database['public']['Tables']['KichBanKiemThu']['Insert']
+export type KichBan = Database['public']['Tables']['KichBanKiemThu']['Row']
+
+export async function getKichBanByDuAn(
+  maDuAn: number,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<KichBan[]> {
+  const { data, error } = await supabaseClient
+    .from('KichBanKiemThu')
+    .select('*')
+    .eq('maDuAn', maDuAn)
+    .order('soThuTu', { ascending: true })
+    .order('maKichBan', { ascending: true })
+
+  if (error) {
+    console.error('getKichBanByDuAn error:', error)
+    return []
+  }
+  return data
+}
+
+export async function createKichBan(
+  kichBanData: KichBanInsert,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<KichBan | null> {
+  const { data, error } = await supabaseClient
+    .from('KichBanKiemThu')
+    .insert(kichBanData)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('createKichBan error:', error)
+    return null
+  }
+  return data
+}
+
+export async function deleteKichBan(
+  maKichBan: number,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<boolean> {
+  const { error } = await supabaseClient
+    .from('KichBanKiemThu')
+    .delete()
+    .eq('maKichBan', maKichBan)
+
+  if (error) {
+    console.error('deleteKichBan error:', error)
+    return false
+  }
+  return true
+}
+
+export async function updateKichBanOrder(
+  items: {
+    maKichBan: number
+    soThuTu: number
+    maKichBanHienThi?: string
+    maDuAn: number
+  }[],
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<boolean> {
+  const { error } = await supabaseClient.from('KichBanKiemThu').upsert(
+    items.map(item => ({
+      maKichBan: item.maKichBan,
+      soThuTu: item.soThuTu,
+      maDuAn: item.maDuAn, // Required for RLS
+      ...(item.maKichBanHienThi
+        ? { maKichBanHienThi: item.maKichBanHienThi }
+        : {})
+    })) as any, // Cast to any to avoid type errors with missing required fields (we only update subset)
+    { onConflict: 'maKichBan' }
+  )
+
+  if (error) {
+    console.error('updateKichBanOrder error:', error)
+    return false
+  }
+  return true
 }

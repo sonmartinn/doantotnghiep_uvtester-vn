@@ -105,7 +105,7 @@ export type Database = {
           taiLieuDinhKem: Json | null
           cauHinhThanhToan: Json | null
           soLuongCanTuyen: number
-          thoiHanNopBai: string | null
+          thoiHanUngTuyen: string | null
           thoiHanDuAn: string | null
           trangThaiDuAn: string
           ngayTao: string
@@ -126,7 +126,7 @@ export type Database = {
           taiLieuDinhKem?: Json | null
           cauHinhThanhToan?: Json | null
           soLuongCanTuyen?: number
-          thoiHanNopBai?: string | null
+          thoiHanUngTuyen?: string | null
           thoiHanDuAn?: string | null
           trangThaiDuAn?: string
           ngayTao?: string
@@ -147,7 +147,7 @@ export type Database = {
           taiLieuDinhKem?: Json | null
           cauHinhThanhToan?: Json | null
           soLuongCanTuyen?: number
-          thoiHanNopBai?: string | null
+          thoiHanUngTuyen?: string | null
           thoiHanDuAn?: string | null
           trangThaiDuAn?: string
           ngayTao?: string

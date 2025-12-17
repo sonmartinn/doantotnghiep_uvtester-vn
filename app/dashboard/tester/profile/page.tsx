@@ -126,6 +126,7 @@ export default function TesterProfilePage() {
   // 3. Form Setup
   const form = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema) as Resolver<ProfileValues>,
+    mode: 'onChange', // Validate on change
     defaultValues: {
       hoTen: '',
       anhDaiDien: '',
@@ -191,6 +192,11 @@ export default function TesterProfilePage() {
             }
           })()
         })
+
+        // Trigger validation immediately after reset to show errors/red dots if needed
+        setTimeout(() => {
+          form.trigger()
+        }, 0)
 
         setIsInitialized(true)
       }
@@ -262,19 +268,24 @@ export default function TesterProfilePage() {
       .map(key => FIELD_LABELS[key] || key)
       .filter(Boolean)
 
-    toast.error('Vui lòng kiểm tra lại thông tin', {
-      description: (
-        <div className="mt-2 text-sm text-red-500">
-          <p className="text-foreground mb-1 font-semibold">Các trường lỗi:</p>
-          <ul className="list-disc space-y-1 pl-4">
-            {errorFields.map(field => (
-              <li key={field}>{field}</li>
-            ))}
-          </ul>
-        </div>
-      ),
-      duration: 5000
-    })
+    toast.error(
+      'Vui lòng kiểm tra lại thông tin ở các Tab rồi nhấn "Lưu thay đổi"',
+      {
+        description: (
+          <div className="mt-2 text-sm text-red-500">
+            <p className="text-foreground mb-1 font-semibold">
+              Các trường lỗi:
+            </p>
+            <ul className="list-disc space-y-1 pl-4">
+              {errorFields.map(field => (
+                <li key={field}>{field}</li>
+              ))}
+            </ul>
+          </div>
+        ),
+        duration: 5000
+      }
+    )
     console.error('Form errors:', errors)
   }
 

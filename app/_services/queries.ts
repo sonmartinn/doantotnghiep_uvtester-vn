@@ -124,3 +124,89 @@ export function useUpdateHoSoClient() {
     }
   })
 }
+
+// 5. Create Project Mutation
+export function useCreateDuAn() {
+  return useMutation({
+    mutationFn: async (projectData: any) => {
+      const { createDuAn } = await import('./data-service')
+      const result = await createDuAn(projectData)
+      if (!result) throw new Error('Create project failed')
+      return result
+    },
+    onSuccess: () => {
+      // Invalidate project list query when available
+      // queryClient.invalidateQueries({ queryKey: KEYS.PROJECTS })
+    }
+  })
+}
+
+// 6. Kich Ban Kiem Thu
+export function useKichBanByDuAn(maDuAn: number | undefined) {
+  return useQuery({
+    queryKey: ['kich_ban', maDuAn],
+    queryFn: async () => {
+      const { getKichBanByDuAn } = await import('./data-service')
+      return getKichBanByDuAn(maDuAn!)
+    },
+    enabled: !!maDuAn
+  })
+}
+
+export function useCreateKichBan() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const { createKichBan } = await import('./data-service')
+      const result = await createKichBan(data)
+      if (!result) throw new Error('Create KichBan failed')
+      return result
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['kich_ban', variables.maDuAn]
+      })
+    }
+  })
+}
+
+export function useDeleteKichBan() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, maDuAn }: { id: number; maDuAn: number }) => {
+      const { deleteKichBan } = await import('./data-service')
+      const success = await deleteKichBan(id)
+      if (!success) throw new Error('Delete KichBan failed')
+      return success
+    },
+    onSuccess: (_, { maDuAn }) => {
+      queryClient.invalidateQueries({ queryKey: ['kich_ban', maDuAn] })
+    }
+  })
+}
+
+export function useUpdateKichBanOrder() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({
+      items,
+      maDuAn
+    }: {
+      items: {
+        maKichBan: number
+        soThuTu: number
+        maKichBanHienThi?: string
+        maDuAn: number
+      }[]
+      maDuAn: number
+    }) => {
+      const { updateKichBanOrder } = await import('./data-service')
+      const success = await updateKichBanOrder(items)
+      if (!success) throw new Error('Update order failed')
+      return success
+    },
+    onSuccess: (_, { maDuAn }) => {
+      queryClient.invalidateQueries({ queryKey: ['kich_ban', maDuAn] })
+    }
+  })
+}
