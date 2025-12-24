@@ -342,6 +342,53 @@ export async function createDuAn(
   return data
 }
 
+export async function updateDuAn(
+  maDuAn: number,
+  fields: Partial<DuAn>,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<boolean> {
+  const { data, error } = await supabaseClient
+    .from('DuAn')
+    .update(fields)
+    .eq('maDuAn', maDuAn)
+    .select()
+
+  if (error) {
+    console.error('updateDuAn error:', error)
+    return false
+  }
+
+  if (!data || data.length === 0) {
+    console.error(
+      'updateDuAn: No rows updated. Possibly RLS blocking or invalid ID.',
+      {
+        maDuAn
+      }
+    )
+    return false
+  }
+
+  return true
+}
+
+export async function getDuAn(
+  maDuAn: number,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<DuAn | null> {
+  const { data, error } = await supabaseClient
+    .from('DuAn')
+    .select('*')
+    .eq('maDuAn', maDuAn)
+    .maybeSingle()
+
+  if (error) {
+    console.error('getDuAn error:', error)
+    return null
+  }
+
+  return data
+}
+
 /* =========================================================
    KichBanKiemThu (Test Cases)
    ========================================================= */
@@ -424,6 +471,135 @@ export async function updateKichBanOrder(
 
   if (error) {
     console.error('updateKichBanOrder error:', error)
+    return false
+  }
+  return true
+}
+
+export async function updateKichBan(
+  maKichBan: number,
+  fields: Partial<KichBan>,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<boolean> {
+  const { error } = await supabaseClient
+    .from('KichBanKiemThu')
+    .update(fields)
+    .eq('maKichBan', maKichBan)
+
+  if (error) {
+    console.error('updateKichBan error:', error)
+    return false
+  }
+  return true
+}
+
+export async function getProjectsByUser(
+  userId: string,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<DuAn[]> {
+  const { data, error } = await supabaseClient
+    .from('DuAn')
+    .select('*')
+    .eq('maNguoiTao', userId)
+    .order('ngayTao', { ascending: false })
+
+  if (error) {
+    console.error('getProjectsByUser error:', error)
+    return []
+  }
+  return data
+}
+
+export async function importKichBan(
+  targetProjectId: number,
+  sourceKichBanIds: number[],
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<boolean> {
+  // 1. Fetch source test cases
+  const { data: sourceCases, error: fetchError } = await supabaseClient
+    .from('KichBanKiemThu')
+    .select('*')
+    .in('maKichBan', sourceKichBanIds)
+
+  if (fetchError || !sourceCases || sourceCases.length === 0) {
+    console.error('importKichBan fetch error:', fetchError)
+    return false
+  }
+
+  // 2. Fetch current test cases in target project to determine next ID and Order
+  const { data: currentCases } = await supabaseClient
+    .from('KichBanKiemThu')
+    .select('maKichBan')
+    .eq('maDuAn', targetProjectId)
+
+  const currentCount = currentCases?.length || 0
+
+  // 3. Prepare new items
+  const newItems = sourceCases.map((item, index) => {
+    const nextIndex = currentCount + index + 1
+    // Filter out id/created_at fields by only picking what we want
+    return {
+      maDuAn: targetProjectId,
+      maKichBanHienThi: `TC-${String(nextIndex).padStart(2, '0')}`,
+      tieuDe: item.tieuDe,
+      dieuKienTienQuyet: item.dieuKienTienQuyet,
+      cacBuocThucHien: item.cacBuocThucHien,
+      yeuCauBangChung: item.yeuCauBangChung,
+      huongDanDacBiet: item.huongDanDacBiet,
+      cauHoiBoSung: item.cauHoiBoSung,
+      soThuTu: currentCount + index // Correct order logic
+    }
+  })
+
+  // 4. Bulk Insert
+  const { error: insertError } = await supabaseClient
+    .from('KichBanKiemThu')
+    .insert(newItems as any)
+
+  if (insertError) {
+    console.error('importKichBan insert error:', insertError)
+    return false
+  }
+
+  return true
+}
+
+/* =========================================================
+   Ung Tuyen (Applications)
+   ========================================================= */
+
+export type UngTuyen = Database['public']['Tables']['UngTuyen']['Row']
+
+export async function getUngTuyenByDuAn(
+  maDuAn: number,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<(UngTuyen & { UngVien: NguoiDung | null })[]> {
+  const { data, error } = await supabaseClient
+    .from('UngTuyen')
+    .select('*, UngVien:NguoiDung(*)')
+    .eq('maDuAn', maDuAn)
+
+  if (error) {
+    console.error('getUngTuyenByDuAn error:', error)
+    return []
+  }
+
+  // @ts-ignore
+  return data
+}
+
+export async function updateUngTuyenStatus(
+  maUngTuyen: number,
+  status: string,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<boolean> {
+  const { error } = await supabaseClient
+    .from('UngTuyen')
+    .update({ trangThaiUngTuyen: status })
+    .eq('maUngTuyen', maUngTuyen)
+
+  if (error) {
+    console.error('updateUngTuyenStatus error:', error)
     return false
   }
   return true

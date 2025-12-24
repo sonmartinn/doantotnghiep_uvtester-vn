@@ -17,10 +17,12 @@ import type { ProjectValues } from '@/app/dashboard/client/post-project/schema'
 
 export function SurveyOptions({
   index,
-  control
+  control,
+  disabled
 }: {
   index: number
   control: Control<ProjectValues>
+  disabled?: boolean
 }) {
   const type = useWatch({
     control,
@@ -41,14 +43,16 @@ export function SurveyOptions({
         <FormLabel className="text-sm">
           Các lựa chọn {type === 'Radio' ? '(Chọn một)' : '(Chọn nhiều)'}
         </FormLabel>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => append('Lựa chọn mới')}
-        >
-          <Plus className="mr-2 h-4 w-4" /> Thêm lựa chọn
-        </Button>
+        {!disabled && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => append('Lựa chọn mới')}
+          >
+            <Plus className="mr-2 h-4 w-4" /> Thêm lựa chọn
+          </Button>
+        )}
       </div>
       <div className="space-y-2">
         {fields.map((field, optionIndex) => (
@@ -63,6 +67,7 @@ export function SurveyOptions({
                       <Input
                         {...field}
                         placeholder={`Lựa chọn ${optionIndex + 1}`}
+                        disabled={disabled}
                       />
                     </div>
                   </FormControl>
@@ -70,18 +75,20 @@ export function SurveyOptions({
                 </FormItem>
               )}
             />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => remove(optionIndex)}
-              className="text-muted-foreground hover:text-red-500"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            {!disabled && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => remove(optionIndex)}
+                className="text-muted-foreground hover:text-red-500"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         ))}
-        {fields.length === 0 && (
+        {fields.length === 0 && !disabled && (
           <p className="text-sm text-red-500">
             Vui lòng thêm ít nhất một lựa chọn.
           </p>

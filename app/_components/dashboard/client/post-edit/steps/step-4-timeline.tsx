@@ -8,19 +8,25 @@ import {
   FormLabel,
   FormMessage
 } from '@/ui/form'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/ui/tooltip'
 import { Input } from '@/ui/input'
 import { Card, CardContent } from '@/ui/card'
 import { Separator } from '@/ui/separator'
 import { Popover, PopoverContent, PopoverTrigger } from '@/ui/popover'
 import { Button } from '@/ui/button'
 import { Calendar } from '@/ui/calendar'
-import { CalendarIcon } from 'lucide-react'
+import { CalendarIcon, Info } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
-import type { ProjectValues } from '../schema'
+import type { ProjectValues } from '../../../../../dashboard/client/post-project/schema'
 
-export function Step4TimelinePayment() {
+export function Step4TimelinePayment({ disabled }: { disabled?: boolean }) {
   const { control } = useFormContext<ProjectValues>()
 
   return (
@@ -47,6 +53,7 @@ export function Step4TimelinePayment() {
                           'w-full pl-3 text-left font-normal',
                           !field.value && 'text-muted-foreground'
                         )}
+                        disabled={disabled}
                       >
                         {field.value ? (
                           format(field.value, 'PPP', { locale: vi })
@@ -57,15 +64,17 @@ export function Step4TimelinePayment() {
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={date => date < new Date()}
-                      initialFocus
-                    />
-                  </PopoverContent>
+                  {!disabled && (
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={date => date < new Date()}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  )}
                 </Popover>
                 <FormMessage />
               </FormItem>
@@ -77,7 +86,28 @@ export function Step4TimelinePayment() {
             name="thoiHanDuAn"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Hạn chót dự án (Deadline)</FormLabel>
+                <FormLabel className="flex items-center gap-2">
+                  Hạn chót dự án (Deadline)
+                  <TooltipProvider>
+                    <Tooltip delayDuration={300}>
+                      <TooltipTrigger asChild>
+                        <Info className="text-muted-foreground hover:text-foreground h-4 w-4 cursor-pointer" />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-popover text-popover-foreground max-w-sm p-4 text-sm shadow-xl">
+                        <p>
+                          Thời hạn kết thúc dự án deadline cho các tester phải
+                          hoàn thành trước thời hạn này.
+                        </p>
+                        <p className="mt-2 text-red-500">
+                          <span className="font-bold">Lưu ý!</span> Sau thời hạn
+                          này bạn có 15 ngày để thanh toán cho các tester trước
+                          khi dự án tự động chuyển sang trạng thái &quot;Đã
+                          đóng&quot;
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -87,6 +117,7 @@ export function Step4TimelinePayment() {
                           'w-full pl-3 text-left font-normal',
                           !field.value && 'text-muted-foreground'
                         )}
+                        disabled={disabled}
                       >
                         {field.value ? (
                           format(field.value, 'PPP', { locale: vi })
@@ -97,15 +128,17 @@ export function Step4TimelinePayment() {
                       </Button>
                     </FormControl>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      disabled={date => date < new Date()}
-                      initialFocus
-                    />
-                  </PopoverContent>
+                  {!disabled && (
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={date => date < new Date()}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  )}
                 </Popover>
                 <FormMessage />
               </FormItem>
@@ -130,7 +163,7 @@ export function Step4TimelinePayment() {
               <FormItem>
                 <FormLabel>Thù lao mỗi lỗi (Per Bug)</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} />
+                  <Input type="number" {...field} disabled={disabled} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -144,7 +177,7 @@ export function Step4TimelinePayment() {
               <FormItem>
                 <FormLabel>Thù lao hoàn thành (Per Completion)</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} />
+                  <Input type="number" {...field} disabled={disabled} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -8,7 +8,13 @@ import { Button } from '@/ui/button'
 import { Skeleton } from '@/ui/skeleton'
 import { ProjectToolbar } from './project-toolbar'
 import { ProjectTable } from './project-table'
-import { PlusCircle, FolderKanban, Clock, CheckCircle2 } from 'lucide-react'
+import {
+  PlusCircle,
+  FolderKanban,
+  Clock,
+  CheckCircle2,
+  PlayCircle
+} from 'lucide-react'
 
 // Types
 export const dynamic = 'force-dynamic'
@@ -22,10 +28,13 @@ async function getStats(userId: string, supabase: any) {
   const total = allProjects?.length || 0
   const active =
     allProjects?.filter((p: any) => p.trangThaiDuAn === 'DangTuyen').length || 0
+  const inProgress =
+    allProjects?.filter((p: any) => p.trangThaiDuAn === 'DangTienHanh')
+      .length || 0
   const pending =
     allProjects?.filter((p: any) => p.trangThaiDuAn === 'ChoDuyet').length || 0
 
-  return { total, active, pending }
+  return { total, active, inProgress, pending }
 }
 
 async function ProjectsContent({
@@ -41,7 +50,7 @@ async function ProjectsContent({
 
   let dbQuery = supabase
     .from('DuAn')
-    .select('*')
+    .select('*, UngTuyen(trangThaiUngTuyen)')
     .eq('maNguoiTao', userId)
     .order('ngayTao', { ascending: false })
 
@@ -53,7 +62,17 @@ async function ProjectsContent({
     dbQuery = dbQuery.eq('trangThaiDuAn', status)
   }
 
-  const { data: projects, error } = await dbQuery
+  const { data: rawProjects, error } = await dbQuery
+
+  const projects = rawProjects?.map((p: any) => ({
+    ...p,
+    pendingCount:
+      p.UngTuyen?.filter((u: any) => u.trangThaiUngTuyen === 'ChoDuyet')
+        .length || 0,
+    acceptedCount:
+      p.UngTuyen?.filter((u: any) => u.trangThaiUngTuyen === 'DaDuyet')
+        .length || 0
+  }))
 
   if (error) {
     console.error('Error fetching projects:', error)
@@ -112,7 +131,7 @@ export default async function ProjectsPage({
       </div>
 
       {/* KPI Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Tổng số dự án</CardTitle>
@@ -131,6 +150,18 @@ export default async function ProjectsPage({
           <CardContent>
             <div className="text-2xl font-bold">{stats.active}</div>
             <p className="text-muted-foreground text-xs">Đang tuyển tester</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Đang tiến hành
+            </CardTitle>
+            <PlayCircle className="h-4 w-4 text-blue-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.inProgress}</div>
+            <p className="text-muted-foreground text-xs">Đang thực hiện test</p>
           </CardContent>
         </Card>
         <Card>

@@ -12,11 +12,11 @@ import { Input } from '@/ui/input'
 import { Card, CardContent } from '@/ui/card'
 import { Separator } from '@/ui/separator'
 import { RadioGroup, RadioGroupItem } from '@/ui/radio-group'
-import type { ProjectValues } from '../schema'
+import type { ProjectValues } from '../../../../../dashboard/client/post-project/schema'
 import { RichTextEditor } from '@/ui/rich-text-editor'
 import { uploadFile } from '@/lib/upload_assests'
 
-export function Step1GeneralInfo() {
+export function Step1GeneralInfo({ disabled }: { disabled?: boolean }) {
   const { control } = useFormContext<ProjectValues>()
 
   const handleUploadImage = async (file: File) => {
@@ -43,6 +43,7 @@ export function Step1GeneralInfo() {
                 <Input
                   placeholder="Ví dụ: Kiểm thử tính năng thanh toán..."
                   {...field}
+                  disabled={disabled}
                 />
               </FormControl>
               <FormMessage />
@@ -62,6 +63,7 @@ export function Step1GeneralInfo() {
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                     className="flex flex-col space-y-1"
+                    disabled={disabled}
                   >
                     <FormItem className="flex items-center space-y-0 space-x-3">
                       <FormControl>
@@ -93,7 +95,7 @@ export function Step1GeneralInfo() {
               <FormItem>
                 <FormLabel>Số lượng Tester</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} />
+                  <Input type="number" {...field} disabled={disabled} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -107,7 +109,7 @@ export function Step1GeneralInfo() {
               <FormItem>
                 <FormLabel>Ngân sách ước tính (VND)</FormLabel>
                 <FormControl>
-                  <Input type="number" {...field} />
+                  <Input type="number" {...field} disabled={disabled} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -129,6 +131,7 @@ export function Step1GeneralInfo() {
                   value={field.value || ''}
                   onChange={field.onChange}
                   onUploadImage={handleUploadImage}
+                  disabled={disabled}
                 />
               </FormControl>
               <FormMessage />

@@ -30,9 +30,41 @@ export const projectSchema = z
 
     // Mapped to JSONB: { devices: string, os: string, browser: string }
     // Simplified for UI as separate fields, will construct JSON on submit
-    env_device: z.string().min(1, 'Thiết bị yêu cầu là bắt buộc'),
-    env_os: z.string().min(1, 'Hệ điều hành yêu cầu là bắt buộc'),
-    env_browser: z.string().optional(),
+    env_device: z
+      .string()
+      .min(1, 'Thiết bị yêu cầu là bắt buộc')
+      .regex(
+        /^[a-zA-Z0-9\s\.\-\(\)\u00C0-\u1EF9]+(,\s*[a-zA-Z0-9\s\.\-\(\)\u00C0-\u1EF9]+)*$/,
+        'Định dạng không hợp lệ. Ví dụ: iPhone 12, Samsung S21'
+      )
+      .refine(
+        val => val.split(',').every(item => item.trim().length > 0),
+        'Không được để dấu phẩy ở cuối hoặc để trống giữa các mục'
+      ),
+    env_os: z
+      .string()
+      .min(1, 'Hệ điều hành yêu cầu là bắt buộc')
+      .regex(
+        /^[a-zA-Z0-9\s\.\-\(\)\u00C0-\u1EF9]+(,\s*[a-zA-Z0-9\s\.\-\(\)\u00C0-\u1EF9]+)*$/,
+        'Định dạng không hợp lệ. Ví dụ: iOS 15, Android 12'
+      )
+      .refine(
+        val => val.split(',').every(item => item.trim().length > 0),
+        'Không được để dấu phẩy ở cuối hoặc để trống giữa các mục'
+      ),
+    env_browser: z
+      .string()
+      .optional()
+      .refine(val => {
+        if (!val) return true
+        return /^[a-zA-Z0-9\s\.\-\(\)\u00C0-\u1EF9]+(,\s*[a-zA-Z0-9\s\.\-\(\)\u00C0-\u1EF9]+)*$/.test(
+          val
+        )
+      }, 'Định dạng không hợp lệ. Ví dụ: Chrome, Safari')
+      .refine(val => {
+        if (!val) return true
+        return val.split(',').every(item => item.trim().length > 0)
+      }, 'Không được để dấu phẩy ở cuối hoặc để trống giữa các mục'),
 
     // STEP 3: Scope & Survey
     // Mapped to JSONB: { inScope: string[], outScope: string[] }

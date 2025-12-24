@@ -8,6 +8,7 @@ import {
 } from '@/ui/table'
 import { Badge } from '@/ui/badge'
 import { ProjectActions } from './project-actions'
+import { getStatusColor, getStatusLabel } from '@/lib/project-helpers'
 
 interface Project {
   maDuAn: number
@@ -17,28 +18,8 @@ interface Project {
   trangThaiDuAn: string
   soLuongCanTuyen: number
   ngayTao: string
-}
-
-const statusMap: Record<
-  string,
-  {
-    label: string
-    variant:
-      | 'default'
-      | 'secondary'
-      | 'outline'
-      | 'destructive'
-      | 'success'
-      | 'warning'
-  }
-> = {
-  Nhap: { label: 'Nháp', variant: 'secondary' },
-  ChoDuyet: { label: 'Chờ duyệt', variant: 'warning' },
-  DangTuyen: { label: 'Đang tuyển', variant: 'success' },
-  DangTienHanh: { label: 'Đang tiến hành', variant: 'default' },
-  ChoQuyetToan: { label: 'Chờ quyết toán', variant: 'warning' },
-  DaDong: { label: 'Đã đóng', variant: 'outline' },
-  BiTuChoi: { label: 'Bị từ chối', variant: 'destructive' }
+  pendingCount?: number
+  acceptedCount?: number
 }
 
 export function ProjectTable({ projects }: { projects: Project[] }) {
@@ -49,7 +30,8 @@ export function ProjectTable({ projects }: { projects: Project[] }) {
           <TableRow>
             <TableHead className="w-[100px]">Mã dự án</TableHead>
             <TableHead>Tên dự án</TableHead>
-            <TableHead>Ứng viên</TableHead>
+            <TableHead>Vị trí</TableHead>
+            <TableHead>Ứng viên chờ duyệt</TableHead>
             <TableHead>Trạng thái</TableHead>
             <TableHead>Ngày tạo</TableHead>
             <TableHead className="text-right">Thao tác</TableHead>
@@ -57,10 +39,6 @@ export function ProjectTable({ projects }: { projects: Project[] }) {
         </TableHeader>
         <TableBody>
           {projects.map(project => {
-            const status = statusMap[project.trangThaiDuAn] || {
-              label: project.trangThaiDuAn,
-              variant: 'outline'
-            }
             return (
               <TableRow key={project.maDuAn}>
                 <TableCell className="font-mono font-bold">
@@ -74,9 +52,19 @@ export function ProjectTable({ projects }: { projects: Project[] }) {
                     </span>
                   </div>
                 </TableCell>
-                <TableCell>{project.soLuongCanTuyen} Vị trí</TableCell>
                 <TableCell>
-                  <Badge variant={status.variant}>{status.label}</Badge>
+                  <span className="font-medium text-green-600">
+                    {project.acceptedCount}
+                  </span>
+                  /{project.soLuongCanTuyen}
+                </TableCell>
+                <TableCell className="font-medium text-orange-500">
+                  {project.pendingCount}
+                </TableCell>
+                <TableCell>
+                  <Badge className={getStatusColor(project.trangThaiDuAn)}>
+                    {getStatusLabel(project.trangThaiDuAn)}
+                  </Badge>
                 </TableCell>
                 <TableCell>
                   {new Date(project.ngayTao).toLocaleDateString('vi-VN', {
@@ -86,7 +74,10 @@ export function ProjectTable({ projects }: { projects: Project[] }) {
                   })}
                 </TableCell>
                 <TableCell className="text-right">
-                  <ProjectActions projectId={project.maDuAn} />
+                  <ProjectActions
+                    projectId={project.maDuAn}
+                    currentStatus={project.trangThaiDuAn}
+                  />
                 </TableCell>
               </TableRow>
             )

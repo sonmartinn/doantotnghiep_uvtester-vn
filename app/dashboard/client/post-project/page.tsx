@@ -26,10 +26,10 @@ import { Button } from '@/ui/button'
 import { projectSchema, type ProjectValues } from './schema'
 
 // Import Step Components
-import { Step1GeneralInfo } from './steps/step-1-general'
-import { Step2TechnicalSpecs } from './steps/step-2-technical'
-import { Step3ScopeSurvey } from './steps/step-3-scope'
-import { Step4TimelinePayment } from './steps/step-4-timeline'
+import { Step1GeneralInfo } from '../../../_components/dashboard/client/post-edit/steps/step-1-general'
+import { Step2TechnicalSpecs } from '../../../_components/dashboard/client/post-edit/steps/step-2-technical'
+import { Step3ScopeSurvey } from '../../../_components/dashboard/client/post-edit/steps/step-3-scope'
+import { Step4TimelinePayment } from '../../../_components/dashboard/client/post-edit/steps/step-4-timeline'
 
 // -----------------------------------------------------------------------------
 // Constants
@@ -180,9 +180,7 @@ export default function PostProjectWizardPage() {
         thoiHanDuAn: values.thoiHanDuAn.toISOString(),
         huongDanTruyCap: values.huongDanTruyCap,
         huongDanKyThuat: values.huongDanKyThuat,
-        taiLieuDinhKem: values.taiLieuDinhKem
-          ? JSON.stringify(values.taiLieuDinhKem)
-          : null,
+        taiLieuDinhKem: values.taiLieuDinhKem || [],
 
         // JSONB Transformations
         yeuCauMoiTruong: {
@@ -204,7 +202,7 @@ export default function PostProjectWizardPage() {
           perCompletion: values.pay_perCompletion || 0
         },
 
-        trangThaiDuAn: 'DangTuyen',
+        trangThaiDuAn: values.loaiDuAn === 'TestCase' ? 'Nhap' : 'DangTuyen',
         ngayTao: new Date().toISOString()
       }
 

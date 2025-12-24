@@ -1,11 +1,8 @@
 'use client'
 
-import {
-  useFieldArray,
-  useFormContext,
-  useWatch,
-  Control
-} from 'react-hook-form'
+import { SurveyOptions } from '@/app/_components/dashboard/client/post-edit/survey-options'
+import { Button } from '@/ui/button'
+import { Card, CardContent } from '@/ui/card'
 import {
   FormControl,
   FormField,
@@ -14,9 +11,6 @@ import {
   FormMessage
 } from '@/ui/form'
 import { Input } from '@/ui/input'
-import { Button } from '@/ui/button'
-import { Card, CardContent } from '@/ui/card'
-import { Separator } from '@/ui/separator'
 import {
   Select,
   SelectContent,
@@ -24,11 +18,12 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/ui/select'
+import { Separator } from '@/ui/separator'
 import { Plus, Trash2 } from 'lucide-react'
-import type { ProjectValues } from '../schema'
-import { SurveyOptions } from '@/app/_components/dashboard/client/post-project/survey-options'
+import { useFieldArray, useFormContext } from 'react-hook-form'
+import type { ProjectValues } from '../../../../../dashboard/client/post-project/schema'
 
-export function Step3ScopeSurvey() {
+export function Step3ScopeSurvey({ disabled }: { disabled?: boolean }) {
   const { control } = useFormContext<ProjectValues>()
 
   // Field Arrays are used here directly
@@ -77,14 +72,16 @@ export function Step3ScopeSurvey() {
                   In Scope (Phạm vi Test){' '}
                   <span className="text-red-500">*</span>
                 </FormLabel>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => appendInScope({ value: '' })}
-                >
-                  <Plus className="mr-2 h-4 w-4" /> Thêm
-                </Button>
+                {!disabled && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => appendInScope({ value: '' })}
+                  >
+                    <Plus className="mr-2 h-4 w-4" /> Thêm
+                  </Button>
+                )}
               </div>
               {inScopeFields.map((field, index) => (
                 <div key={field.id} className="flex gap-2">
@@ -94,21 +91,27 @@ export function Step3ScopeSurvey() {
                     render={({ field }) => (
                       <FormItem className="flex-1">
                         <FormControl>
-                          <Input placeholder="Chức năng a..." {...field} />
+                          <Input
+                            placeholder="Chức năng a..."
+                            {...field}
+                            disabled={disabled}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeInScope(index)}
-                    disabled={inScopeFields.length === 1}
-                  >
-                    <Trash2 className="h-4 w-4 text-red-500" />
-                  </Button>
+                  {!disabled && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeInScope(index)}
+                      disabled={inScopeFields.length === 1}
+                    >
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>
@@ -120,14 +123,16 @@ export function Step3ScopeSurvey() {
                   Out for Scope (Không Test){' '}
                   <span className="text-red-500">*</span>
                 </FormLabel>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => appendOutScope({ value: '' })}
-                >
-                  <Plus className="mr-2 h-4 w-4" /> Thêm
-                </Button>
+                {!disabled && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => appendOutScope({ value: '' })}
+                  >
+                    <Plus className="mr-2 h-4 w-4" /> Thêm
+                  </Button>
+                )}
               </div>
               {outScopeFields.map((field, index) => (
                 <div key={field.id} className="flex gap-2">
@@ -137,21 +142,27 @@ export function Step3ScopeSurvey() {
                     render={({ field }) => (
                       <FormItem className="flex-1">
                         <FormControl>
-                          <Input placeholder="Không test phần..." {...field} />
+                          <Input
+                            placeholder="Không test phần..."
+                            {...field}
+                            disabled={disabled}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeOutScope(index)}
-                    disabled={outScopeFields.length === 1}
-                  >
-                    <Trash2 className="h-4 w-4 text-red-500" />
-                  </Button>
+                  {!disabled && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeOutScope(index)}
+                      disabled={outScopeFields.length === 1}
+                    >
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>
@@ -172,29 +183,46 @@ export function Step3ScopeSurvey() {
                 Tạo câu hỏi để lọc Tester phù hợp với dự án.
               </p>
             </div>
-            <Button
-              type="button"
-              onClick={() =>
-                appendSurvey({
-                  question: '',
-                  type: 'Text',
-                  options: []
-                })
-              }
-            >
-              <Plus className="mr-2 h-4 w-4" /> Thêm câu hỏi
-            </Button>
+            {!disabled && (
+              <Button
+                type="button"
+                onClick={() =>
+                  appendSurvey({
+                    question: '',
+                    type: 'Text',
+                    options: []
+                  })
+                }
+              >
+                <Plus className="mr-2 h-4 w-4" /> Thêm câu hỏi
+              </Button>
+            )}
           </div>
           <Separator />
 
           <div className="space-y-6">
-            <div className="bg-muted text-muted-foreground mt-4 rounded-lg p-4 text-sm">
-              <p>
-                <span className="font-semibold text-red-500">Quan trọng:</span>{' '}
-                Tester khi ứng tuyển vào dự án của bạn, sẽ bắt buộc phải hoàn
-                thành bài khảo sát này trước khi được chấp nhận vào dự án.
-              </p>
-            </div>
+            <FormField
+              control={control}
+              name="cauHoiKhaoSat"
+              render={() => (
+                <>
+                  <div className="bg-muted text-muted-foreground mt-4 rounded-lg p-4 text-sm">
+                    <p>
+                      <span className="font-semibold text-red-500">
+                        Quan trọng:
+                      </span>{' '}
+                      Tester khi ứng tuyển vào dự án của bạn, sẽ bắt buộc phải
+                      hoàn thành bài khảo sát này trước khi được chấp nhận vào
+                      dự án.
+                    </p>
+                  </div>
+                  <FormItem>
+                    <FormMessage />
+                  </FormItem>
+                </>
+              )}
+            />
+
             {surveyFields.map((field, index) => (
               <Card key={field.id} className="bg-muted/50">
                 <CardContent className="space-y-4 p-4">
@@ -210,6 +238,7 @@ export function Step3ScopeSurvey() {
                               <Input
                                 placeholder="Nhập nội dung câu hỏi..."
                                 {...field}
+                                disabled={disabled}
                               />
                             </FormControl>
                             <FormMessage />
@@ -225,6 +254,7 @@ export function Step3ScopeSurvey() {
                             <Select
                               onValueChange={field.onChange}
                               defaultValue={field.value}
+                              disabled={disabled}
                             >
                               <FormControl>
                                 <SelectTrigger>
@@ -248,24 +278,35 @@ export function Step3ScopeSurvey() {
                         )}
                       />
                     </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeSurvey(index)}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
+                    {!disabled && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeSurvey(index)}
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </Button>
+                    )}
                   </div>
 
-                  <SurveyOptions index={index} control={control} />
+                  <SurveyOptions
+                    index={index}
+                    control={control}
+                    disabled={disabled}
+                  />
                 </CardContent>
               </Card>
             ))}
-            {surveyFields.length === 0 && (
+            {surveyFields.length === 0 && !disabled && (
               <div className="text-muted-foreground py-8 text-center">
                 Chưa có câu hỏi nào. Nhấn nút &quot;Thêm câu hỏi&quot; để bắt
                 đầu.
+              </div>
+            )}
+            {surveyFields.length === 0 && disabled && (
+              <div className="text-muted-foreground py-8 text-center">
+                Không có câu hỏi khảo sát.
               </div>
             )}
           </div>

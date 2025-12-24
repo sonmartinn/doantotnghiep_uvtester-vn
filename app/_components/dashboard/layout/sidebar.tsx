@@ -44,10 +44,12 @@ export default function Sidebar({ role, className }: SidebarProps) {
     user?.id
   )
   const { data: hoSoTester, isLoading: isLoadingHoSoTester } = useHoSoTester(
-    user?.id
+    user?.id,
+    { enabled: role === 'tester' }
   )
   const { data: hoSoClient, isLoading: isLoadingHoSoClient } = useHoSoClient(
-    user?.id
+    user?.id,
+    { enabled: role === 'client' }
   )
 
   const isLoading =

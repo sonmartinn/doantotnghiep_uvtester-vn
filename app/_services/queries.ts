@@ -8,7 +8,8 @@ import {
   upsertHoSoClient,
   type NguoiDung,
   type HoSoTester,
-  type HoSoClient
+  type HoSoClient,
+  type DuAn
 } from './data-service'
 import { supabase } from '@/lib/supabase/client'
 
@@ -43,20 +44,26 @@ export function useNguoiDung(userId: string | undefined) {
 }
 
 // 3. Ho So Tester
-export function useHoSoTester(userId: string | undefined) {
+export function useHoSoTester(
+  userId: string | undefined,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: KEYS.HOSO_TESTER(userId!),
     queryFn: () => getHoSoTester(userId!),
-    enabled: !!userId
+    enabled: !!userId && (options?.enabled ?? true)
   })
 }
 
 // 4. Ho So Client
-export function useHoSoClient(userId: string | undefined) {
+export function useHoSoClient(
+  userId: string | undefined,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: KEYS.HOSO_CLIENT(userId!),
     queryFn: () => getHoSoClient(userId!),
-    enabled: !!userId
+    enabled: !!userId && (options?.enabled ?? true)
   })
 }
 
@@ -141,6 +148,39 @@ export function useCreateDuAn() {
   })
 }
 
+export function useUpdateDuAn() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({
+      maDuAn,
+      data
+    }: {
+      maDuAn: number
+      data: Partial<DuAn>
+    }) => {
+      const { updateDuAn } = await import('./data-service')
+      const success = await updateDuAn(maDuAn, data)
+      if (!success) throw new Error('Update Project failed')
+      return success
+    },
+    onSuccess: (_, { maDuAn }) => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+      queryClient.invalidateQueries({ queryKey: ['du_an', maDuAn] })
+    }
+  })
+}
+
+export function useDuAn(maDuAn: number) {
+  return useQuery({
+    queryKey: ['du_an', maDuAn],
+    queryFn: async () => {
+      const { getDuAn } = await import('./data-service')
+      return getDuAn(maDuAn)
+    },
+    enabled: !!maDuAn
+  })
+}
+
 // 6. Kich Ban Kiem Thu
 export function useKichBanByDuAn(maDuAn: number | undefined) {
   return useQuery({
@@ -173,7 +213,7 @@ export function useCreateKichBan() {
 export function useDeleteKichBan() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, maDuAn }: { id: number; maDuAn: number }) => {
+    mutationFn: async ({ id }: { id: number; maDuAn: number }) => {
       const { deleteKichBan } = await import('./data-service')
       const success = await deleteKichBan(id)
       if (!success) throw new Error('Delete KichBan failed')
@@ -189,8 +229,7 @@ export function useUpdateKichBanOrder() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({
-      items,
-      maDuAn
+      items
     }: {
       items: {
         maKichBan: number
@@ -207,6 +246,94 @@ export function useUpdateKichBanOrder() {
     },
     onSuccess: (_, { maDuAn }) => {
       queryClient.invalidateQueries({ queryKey: ['kich_ban', maDuAn] })
+    }
+  })
+}
+
+export function useUpdateKichBan() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({
+      maKichBan,
+      data
+    }: {
+      maKichBan: number
+      data: any
+    }) => {
+      const { updateKichBan } = await import('./data-service')
+      const success = await updateKichBan(maKichBan, data)
+      if (!success) throw new Error('Update KichBan failed')
+      return success
+    },
+    onSuccess: (_, { data }) => {
+      if (data.maDuAn) {
+        queryClient.invalidateQueries({ queryKey: ['kich_ban', data.maDuAn] })
+      }
+    }
+  })
+}
+
+export function useProjectsByUser(userId: string | undefined) {
+  return useQuery({
+    queryKey: ['projects', userId],
+    queryFn: async () => {
+      const { getProjectsByUser } = await import('./data-service')
+      return getProjectsByUser(userId!)
+    },
+    enabled: !!userId
+  })
+}
+
+export function useImportKichBan() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({
+      targetProjectId,
+      sourceKichBanIds
+    }: {
+      targetProjectId: number
+      sourceKichBanIds: number[]
+    }) => {
+      const { importKichBan } = await import('./data-service')
+      const success = await importKichBan(targetProjectId, sourceKichBanIds)
+      if (!success) throw new Error('Import KichBan failed')
+      return success
+    },
+    onSuccess: (_, { targetProjectId }) => {
+      queryClient.invalidateQueries({ queryKey: ['kich_ban', targetProjectId] })
+    }
+  })
+}
+
+export function useUngTuyenByDuAn(maDuAn: number) {
+  return useQuery({
+    queryKey: ['ung_tuyen', maDuAn],
+    queryFn: async () => {
+      const { getUngTuyenByDuAn } = await import('./data-service')
+      return getUngTuyenByDuAn(maDuAn)
+    },
+    enabled: !!maDuAn
+  })
+}
+
+export function useUpdateUngTuyen() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({
+      maUngTuyen,
+      status
+    }: {
+      maUngTuyen: number
+      status: string
+      maDuAn: number
+    }) => {
+      const { updateUngTuyenStatus } = await import('./data-service')
+      const success = await updateUngTuyenStatus(maUngTuyen, status)
+      if (!success) throw new Error('Update UngTuyen failed')
+      return success
+    },
+    onSuccess: (_, { maDuAn }) => {
+      queryClient.invalidateQueries({ queryKey: ['ung_tuyen', maDuAn] })
     }
   })
 }

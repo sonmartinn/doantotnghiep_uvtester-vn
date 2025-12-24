@@ -302,9 +302,11 @@ export function RichTextEditor({
   onChange,
   placeholder,
   className,
-  onUploadImage
-}: RichTextEditorProps) {
+  onUploadImage,
+  disabled
+}: RichTextEditorProps & { disabled?: boolean }) {
   const editor = useEditor({
+    editable: !disabled,
     extensions: [
       StarterKit.configure({
         bulletList: {
@@ -328,8 +330,10 @@ export function RichTextEditor({
     content: value,
     editorProps: {
       attributes: {
-        class:
-          'min-h-[150px] w-full max-w-none rounded-b-md border border-t-0 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 prose prose-sm dark:prose-invert focus:prose-p:m-0'
+        class: cn(
+          'min-h-[150px] w-full max-w-none rounded-b-md border border-t-0 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 prose prose-sm dark:prose-invert focus:prose-p:m-0',
+          disabled && 'bg-muted/50 text-muted-foreground'
+        )
       }
     },
     onUpdate: ({ editor }) => {
@@ -337,6 +341,13 @@ export function RichTextEditor({
     },
     immediatelyRender: false
   })
+
+  // Update editable state when disabled prop changes
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!disabled)
+    }
+  }, [editor, disabled])
 
   // Sync value if changed externally
   useEffect(() => {
@@ -351,7 +362,9 @@ export function RichTextEditor({
 
   return (
     <div className={cn('overflow-hidden rounded-md border', className)}>
-      <EditorToolbar editor={editor} onUploadImage={onUploadImage} />
+      {!disabled && (
+        <EditorToolbar editor={editor} onUploadImage={onUploadImage} />
+      )}
       <EditorContent editor={editor} />
       <style jsx global>{`
         .ProseMirror p.is-editor-empty:first-child::before {
