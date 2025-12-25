@@ -38,7 +38,9 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
   // Status logic
   const isFullEdit =
     project.trangThaiDuAn === 'Nhap' || project.trangThaiDuAn === 'DaDong'
-  const isPartialEdit = project.trangThaiDuAn === 'DangTuyen'
+  const isPartialEdit =
+    project.trangThaiDuAn === 'DangTuyen' ||
+    project.trangThaiDuAn === 'DangTienHanh'
   const isReadOnly = !isFullEdit && !isPartialEdit
 
   // Mapping logic: DuAn -> ProjectValues
@@ -209,8 +211,8 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Lưu ý</AlertTitle>
               <AlertDescription>
-                Dự án đang trong giai đoạn tuyển dụng. Bạn chỉ có thể chỉnh sửa
-                hướng dẫn và tài liệu đính kèm.{' '}
+                Dự án đang trong giai đoạn tuyển dụng hoặc đang tiến hành. Bạn
+                chỉ có thể chỉnh sửa hướng dẫn và tài liệu đính kèm.{' '}
                 <span className="block font-semibold">
                   Bạn phải đóng dự án để chỉnh sửa tất cả thông tin.
                 </span>

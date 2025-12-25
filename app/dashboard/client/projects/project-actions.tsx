@@ -9,7 +9,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/ui/dropdown-menu'
-import { Archive, Eye, FileEdit, MoreHorizontal, RotateCcw } from 'lucide-react'
+import {
+  Archive,
+  Eye,
+  FileEdit,
+  MoreHorizontal,
+  RotateCcw,
+  Edit,
+  CheckCircle
+} from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -36,9 +44,16 @@ export function ProjectActions({
   currentStatus
 }: ProjectActionsProps) {
   const [open, setOpen] = useState(false)
+  const [openComplete, setOpenComplete] = useState(false)
   const updateDuAnMutation = useUpdateDuAn()
 
   const isClosed = currentStatus === 'DaDong'
+  const isPendingSettlement = currentStatus === 'ChoQuyetToan'
+  const showCloseAction = ![
+    'DangTienHanh',
+    'ChoQuyetToan',
+    'DaHoanThanh'
+  ].includes(currentStatus)
   const actionLabel = isClosed ? 'Mở lại dự án' : 'Đóng dự án'
 
   const router = useRouter()
@@ -60,6 +75,21 @@ export function ProjectActions({
     }
   }
 
+  const handleCompleteProject = async () => {
+    try {
+      await updateDuAnMutation.mutateAsync({
+        maDuAn: projectId,
+        data: { trangThaiDuAn: 'DaHoanThanh' }
+      })
+      toast.success('Đã hoàn thành dự án.')
+      router.refresh()
+    } catch (error: any) {
+      toast.error('Lỗi: ' + error.message)
+    } finally {
+      setOpenComplete(false)
+    }
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -78,6 +108,12 @@ export function ProjectActions({
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
+            <Link href={`/dashboard/client/projects/${projectId}/edit`}>
+              <Edit className="mr-2 h-4 w-4" />
+              Chỉnh sửa dự án
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
             <Link
               href={`/dashboard/client/projects/${projectId}/setup-test-cases`}
             >
@@ -85,23 +121,38 @@ export function ProjectActions({
               Thiết lập kịch bản
             </Link>
           </DropdownMenuItem>
+          {isPendingSettlement && (
+            <DropdownMenuItem
+              className="text-green-600 focus:text-green-600"
+              onSelect={e => {
+                e.preventDefault()
+                setOpenComplete(true)
+              }}
+            >
+              <CheckCircle className="mr-2 h-4 w-4" />
+              Hoàn thành dự án
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className={
-              isClosed ? 'text-blue-600' : 'text-red-600 focus:text-red-600'
-            }
-            onSelect={e => {
-              e.preventDefault()
-              setOpen(true)
-            }}
-          >
-            {isClosed ? (
-              <RotateCcw className="mr-2 h-4 w-4" />
-            ) : (
-              <Archive className="mr-2 h-4 w-4" />
-            )}
-            {actionLabel}
-          </DropdownMenuItem>
+
+          {showCloseAction && (
+            <DropdownMenuItem
+              className={
+                isClosed ? 'text-blue-600' : 'text-red-600 focus:text-red-600'
+              }
+              onSelect={e => {
+                e.preventDefault()
+                setOpen(true)
+              }}
+            >
+              {isClosed ? (
+                <RotateCcw className="mr-2 h-4 w-4" />
+              ) : (
+                <Archive className="mr-2 h-4 w-4" />
+              )}
+              {actionLabel}
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -123,7 +174,7 @@ export function ProjectActions({
                   </span>
                   <span className="font-bold text-red-600">
                     Lưu ý: Các hoạt động và dữ liệu ứng tuyển sẽ bị tạm dừng và
-                    xóa. Bạn hãy cân nhắc!
+                    làm mới. Bạn hãy cân nhắc!
                   </span>
                 </span>
               )}
@@ -140,6 +191,28 @@ export function ProjectActions({
               }
             >
               {isClosed ? 'Mở lại' : 'Đóng dự án'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Complete Project Dialog */}
+      <AlertDialog open={openComplete} onOpenChange={setOpenComplete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hoàn thành dự án?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Dự án sẽ chuyển sang trạng thái &quot;Đã hoàn thành&quot;. Hãy đảm
+              bảo bạn đã thanh toán đầy đủ cho các ứng viên.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleCompleteProject}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Hoàn thành
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

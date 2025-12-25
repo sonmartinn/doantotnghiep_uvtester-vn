@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { getDuAn } from '@/app/_services/data-service'
+import { getDuAn, getUngTuyenByDuAn } from '@/app/_services/data-service'
 import { getStatusColor, getStatusLabel } from '@/lib/project-helpers'
 import { Badge } from '@/ui/badge'
 import {
@@ -11,7 +11,7 @@ import {
   BreadcrumbSeparator
 } from '@/ui/breadcrumb'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs'
-import { Calendar, Clock, DollarSign, Users } from 'lucide-react'
+import { Calendar, Clock, DollarSign, Users, UserPlus } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import { CandidatesTab } from './candidates-tab'
 import { OverviewTab } from './overview-tab'
@@ -26,6 +26,13 @@ export default async function ProjectDetailsPage({
   const projectId = Number((await params).projectId)
   const supabase = await createClient()
   const project = await getDuAn(projectId, supabase)
+  const applications = await getUngTuyenByDuAn(projectId, supabase)
+  const acceptedCount = applications.filter(
+    app => app.trangThaiUngTuyen === 'DaDuyet'
+  ).length
+  const pendingCount = applications.filter(
+    app => app.trangThaiUngTuyen === 'ChoDuyet'
+  ).length
 
   if (!project) {
     notFound()
@@ -72,7 +79,17 @@ export default async function ProjectDetailsPage({
             </div>
             <div className="flex items-center gap-1">
               <Users className="h-4 w-4" />
-              <span>Tuyển: {project.soLuongCanTuyen} người</span>
+              <span>
+                Tuyển: <span className="text-green-600">{acceptedCount}</span>/
+                {project.soLuongCanTuyen} người
+              </span>
+            </div>
+            <div className="flex items-center gap-1">
+              <UserPlus className="h-4 w-4" />
+              <span>
+                Chờ duyệt:{' '}
+                <span className="text-orange-500">{pendingCount}</span>
+              </span>
             </div>
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />

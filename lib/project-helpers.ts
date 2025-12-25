@@ -8,6 +8,10 @@ export const getStatusColor = (status: string) => {
       return 'bg-yellow-500 hover:bg-yellow-600'
     case 'DaDong':
       return 'bg-gray-500 hover:bg-gray-600'
+    case 'ChoQuyetToan':
+      return 'bg-orange-500 hover:bg-orange-600'
+    case 'DaHoanThanh':
+      return 'bg-purple-500 hover:bg-purple-600'
     default:
       return 'bg-slate-500 hover:bg-slate-600'
   }
@@ -23,6 +27,10 @@ export const getStatusLabel = (status: string) => {
       return 'Chờ duyệt'
     case 'DaDong':
       return 'Đã đóng'
+    case 'ChoQuyetToan':
+      return 'Chờ quyết toán'
+    case 'DaHoanThanh':
+      return 'Đã hoàn thành'
     case 'Nhap':
       return 'Nháp'
     default:
