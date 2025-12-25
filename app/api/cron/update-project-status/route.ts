@@ -3,13 +3,17 @@ import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    // Optional: Add authorization check if needed (e.g. valid 'CRON_SECRET')
-    // const authHeader = request.headers.get('authorization');
-    // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    //   return new Response('Unauthorized', { status: 401 });
-    // }
+    const authHeader = request.headers.get('authorization')
+    if (
+      process.env.CRON_SECRET &&
+      authHeader !== `Bearer ${process.env.CRON_SECRET}`
+    ) {
+      return new Response('Unauthorized', {
+        status: 401
+      })
+    }
 
     const supabase = await createClient()
 
