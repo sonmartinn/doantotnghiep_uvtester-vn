@@ -4,10 +4,11 @@ import { getDuAn } from '@/app/_services/data-service'
 import { ProjectEditForm } from './edit-project-form'
 
 interface PageProps {
-  params: { projectId: string }
+  params: Promise<{ projectId: string }>
 }
 
-export default async function EditProjectPage({ params }: PageProps) {
+export default async function EditProjectPage(props: PageProps) {
+  const params = await props.params
   const supabase = await createClient()
   const {
     data: { session }
@@ -17,7 +18,7 @@ export default async function EditProjectPage({ params }: PageProps) {
     redirect('/auth/login')
   }
 
-  const projectId = Number((await params).projectId)
+  const projectId = Number(params.projectId)
 
   if (isNaN(projectId)) {
     notFound()

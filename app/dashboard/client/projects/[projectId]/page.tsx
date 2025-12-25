@@ -18,12 +18,11 @@ import { OverviewTab } from './overview-tab'
 import { ProjectHeaderActions } from './project-header-actions'
 import { TestCasesTab } from './test-cases-tab'
 
-export default async function ProjectDetailsPage({
-  params
-}: {
-  params: { projectId: string }
+export default async function ProjectDetailsPage(props: {
+  params: Promise<{ projectId: string }>
 }) {
-  const projectId = Number((await params).projectId)
+  const params = await props.params
+  const projectId = Number(params.projectId)
   const supabase = await createClient()
   const project = await getDuAn(projectId, supabase)
   const applications = await getUngTuyenByDuAn(projectId, supabase)
