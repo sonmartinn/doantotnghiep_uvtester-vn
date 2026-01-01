@@ -493,6 +493,33 @@ export async function updateKichBan(
   return true
 }
 
+export async function getOpenProjects(
+  query: string = '',
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<(DuAn & { soLuongUngVien: number })[]> {
+  let dbQuery = supabaseClient
+    .from('DuAn')
+    .select('*, UngTuyen(count)')
+    .eq('trangThaiDuAn', 'DangTuyen')
+    .order('ngayTao', { ascending: false })
+
+  if (query) {
+    dbQuery = dbQuery.ilike('tieuDe', `%${query}%`)
+  }
+
+  const { data, error } = await dbQuery
+
+  if (error) {
+    console.error('getOpenProjects error:', error)
+    return []
+  }
+
+  return (data || []).map((item: any) => ({
+    ...item,
+    soLuongUngVien: item.UngTuyen?.[0]?.count || 0
+  }))
+}
+
 export async function getProjectsByUser(
   userId: string,
   supabaseClient: SupabaseClient<Database> = supabase

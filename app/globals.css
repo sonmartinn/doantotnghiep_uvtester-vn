@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* 1) Design tokens: sinh ra các class như bg-background, text-foreground, bg-primary, ... */
 @theme {
   --color-background: hsl(220 25% 97%);
