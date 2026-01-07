@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase/client'
-import { Database } from './database.types'
+import { Database } from './database-types'
 import { SupabaseClient, User } from '@supabase/supabase-js'
 
 // Define types for our tables
@@ -8,6 +8,8 @@ export type HoSoTester = Database['public']['Tables']['HoSoTester']['Row']
 export type HoSoClient = Database['public']['Tables']['HoSoClient']['Row']
 export type DuAn = Database['public']['Tables']['DuAn']['Row']
 export type DuAnInsert = Database['public']['Tables']['DuAn']['Insert']
+export type CauHinhTesterDuAn =
+  Database['public']['Tables']['CauHinhTesterDuAn']['Row']
 
 /* =========================================================
    AUTH HELPERS
@@ -415,6 +417,22 @@ export async function getKichBanByDuAn(
   return data
 }
 
+export async function getTestCaseCount(
+  maDuAn: number,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<number> {
+  const { count, error } = await supabaseClient
+    .from('KichBanKiemThu')
+    .select('*', { count: 'exact', head: true })
+    .eq('maDuAn', maDuAn)
+
+  if (error) {
+    console.error('getTestCaseCount error:', error)
+    return 0
+  }
+  return count || 0
+}
+
 export async function createKichBan(
   kichBanData: KichBanInsert,
   supabaseClient: SupabaseClient<Database> = supabase
@@ -495,16 +513,54 @@ export async function updateKichBan(
 
 export async function getOpenProjects(
   query: string = '',
-  supabaseClient: SupabaseClient<Database> = supabase
+  filter?: { device?: string; sort?: string; type?: string },
+  supabaseClient: SupabaseClient<Database> = supabase,
+  excludeAppliedByUser?: string
 ): Promise<(DuAn & { soLuongUngVien: number })[]> {
+  // 1. If excluding by user, fetch their applied project IDs first
+  let excludedIds: number[] = []
+  if (excludeAppliedByUser) {
+    const { data: applications } = await supabaseClient
+      .from('UngTuyen')
+      .select('maDuAn')
+      .eq('maUngVien', excludeAppliedByUser)
+
+    if (applications) {
+      excludedIds = applications.map(app => app.maDuAn)
+    }
+  }
+
   let dbQuery = supabaseClient
     .from('DuAn')
-    .select('*, UngTuyen(count)')
+    .select('*, so_luong_da_duyet')
     .eq('trangThaiDuAn', 'DangTuyen')
-    .order('ngayTao', { ascending: false })
 
+  // Apply exclusion
+  if (excludedIds.length > 0) {
+    dbQuery = dbQuery.not('maDuAn', 'in', `(${excludedIds.join(',')})`)
+  }
+
+  // Search
   if (query) {
     dbQuery = dbQuery.ilike('tieuDe', `%${query}%`)
+  }
+
+  // Filter by Device
+  if (filter?.device && filter.device !== 'all') {
+    // Check if yeuCauMoiTruong->devices contains the selected device
+    dbQuery = dbQuery.contains('yeuCauMoiTruong', {
+      devices: [filter.device]
+    })
+  }
+
+  // Filter by Type
+  if (filter?.type && filter.type !== 'all') {
+    dbQuery = dbQuery.eq('loaiDuAn', filter.type)
+  }
+
+  // Default Sort (if not price sort)
+  if (!filter?.sort || filter.sort === 'latest') {
+    dbQuery = dbQuery.order('ngayTao', { ascending: false })
   }
 
   const { data, error } = await dbQuery
@@ -514,10 +570,27 @@ export async function getOpenProjects(
     return []
   }
 
-  return (data || []).map((item: any) => ({
+  let projects = (data || []).map((item: any) => ({
     ...item,
-    soLuongUngVien: item.UngTuyen?.[0]?.count || 0
+    soLuongUngVien: item.so_luong_da_duyet || 0
   }))
+
+  // In-memory Sort for Price (JSONB field)
+  if (filter?.sort === 'price_asc') {
+    projects.sort((a, b) => {
+      const priceA = (a.cauHinhThanhToan as any)?.perCompletion || 0
+      const priceB = (b.cauHinhThanhToan as any)?.perCompletion || 0
+      return priceA - priceB
+    })
+  } else if (filter?.sort === 'price_desc') {
+    projects.sort((a, b) => {
+      const priceA = (a.cauHinhThanhToan as any)?.perCompletion || 0
+      const priceB = (b.cauHinhThanhToan as any)?.perCompletion || 0
+      return priceB - priceA
+    })
+  }
+
+  return projects
 }
 
 export async function getProjectsByUser(
@@ -627,6 +700,135 @@ export async function updateUngTuyenStatus(
 
   if (error) {
     console.error('updateUngTuyenStatus error:', error)
+    return false
+  }
+  return true
+}
+
+export async function getAppliedProjects(
+  userId: string,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<(UngTuyen & { DuAn: DuAn | null })[]> {
+  const { data, error } = await supabaseClient
+    .from('UngTuyen')
+    .select('*, DuAn:DuAn(*)')
+    .eq('maUngVien', userId)
+    .order('ngayUngTuyen', { ascending: false })
+
+  if (error) {
+    console.error('getAppliedProjects error:', error)
+    return []
+  }
+
+  // @ts-ignore
+  return data
+}
+
+export async function getUngTuyenByUserAndProject(
+  userId: string,
+  projectId: number,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<UngTuyen | null> {
+  const { data, error } = await supabaseClient
+    .from('UngTuyen')
+    .select('*')
+    .eq('maUngVien', userId)
+    .eq('maDuAn', projectId)
+    .maybeSingle()
+
+  if (error) {
+    console.error('getUngTuyenByUserAndProject error:', error)
+    return null
+  }
+  return data
+}
+
+/* =========================================================
+   KetQuaKiemThu (Test Results)
+   ========================================================= */
+
+export type KetQuaKiemThu = Database['public']['Tables']['KetQuaKiemThu']['Row']
+export type KetQuaKiemThuInsert =
+  Database['public']['Tables']['KetQuaKiemThu']['Insert']
+
+export async function getKetQuaByDuAnAndUser(
+  maDuAn: number,
+  userId: string,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<KetQuaKiemThu[]> {
+  // Join with KichBanKiemThu to filter by maDuAn
+  const { data, error } = await supabaseClient
+    .from('KetQuaKiemThu')
+    .select('*, KichBanKiemThu!inner(maDuAn)')
+    .eq('maNguoiThucHien', userId)
+    .eq('KichBanKiemThu.maDuAn', maDuAn)
+
+  if (error) {
+    console.error('getKetQuaByDuAnAndUser error:', error)
+    return []
+  }
+
+  // @ts-ignore
+  return data
+}
+
+export async function upsertKetQuaKiemThu(
+  resultData: KetQuaKiemThuInsert,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<KetQuaKiemThu | null> {
+  const { data, error } = await supabaseClient
+    .from('KetQuaKiemThu')
+    .upsert(resultData, { onConflict: 'maKichBan, maNguoiThucHien' })
+    .select()
+    .single()
+
+  if (error) {
+    console.error('upsertKetQuaKiemThu error:', error)
+    return null
+  }
+  return data
+}
+
+/* =========================================================
+   CauHinhTesterDuAn (Tester Project Config)
+   ========================================================= */
+
+export async function getTesterProjectConfig(
+  maDuAn: number,
+  maNguoiDung: string,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<CauHinhTesterDuAn | null> {
+  const { data, error } = await supabaseClient
+    .from('CauHinhTesterDuAn')
+    .select('*')
+    .eq('maDuAn', maDuAn)
+    .eq('maNguoiDung', maNguoiDung)
+    .maybeSingle()
+
+  if (error) {
+    console.error('getTesterProjectConfig error:', error)
+    return null
+  }
+  return data
+}
+
+export async function upsertTesterProjectConfig(
+  maDuAn: number,
+  maNguoiDung: string,
+  config: { thietBiDuocChon?: any },
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<boolean> {
+  const { error } = await supabaseClient.from('CauHinhTesterDuAn').upsert(
+    {
+      maDuAn,
+      maNguoiDung,
+      thietBiDuocChon: config.thietBiDuocChon
+    },
+    { onConflict: 'maDuAn, maNguoiDung' }
+  )
+
+  if (error) {
+    console.error('upsertTesterProjectConfig error:', error)
     return false
   }
   return true

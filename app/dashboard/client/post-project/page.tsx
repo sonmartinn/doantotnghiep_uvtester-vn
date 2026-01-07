@@ -68,7 +68,7 @@ export default function PostProjectWizardPage() {
         'Truy cập https://test-app.bank.com. Tài khoản: testuser/password123. Tải file APK tại đây.',
       huongDanKyThuat:
         'Sử dụng Charles Proxy để bắt API log. Chú ý các endpoint /transfer và /payment.',
-      env_device: 'Thiết bị Mobile, PC, Laptop',
+      env_device: ['Mobile', 'PC', 'Laptop'],
       env_os: 'iOS 15, Android 12',
       env_browser: 'Safari, Chrome Mobile',
       scope_in: [
@@ -184,9 +184,7 @@ export default function PostProjectWizardPage() {
 
         // JSONB Transformations
         yeuCauMoiTruong: {
-          devices: values.env_device
-            ? values.env_device.split(',').map(s => s.trim())
-            : [],
+          devices: values.env_device || [],
           os: values.env_os ? values.env_os.split(',').map(s => s.trim()) : [],
           browser: values.env_browser
             ? values.env_browser.split(',').map(s => s.trim())

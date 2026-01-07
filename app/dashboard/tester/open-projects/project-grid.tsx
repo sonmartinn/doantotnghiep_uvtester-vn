@@ -1,11 +1,29 @@
-import { getOpenProjects } from '@/app/_services/data-service'
+import { getAuthUser, getOpenProjects } from '@/app/_services/data-service'
 import { createClient } from '@/lib/supabase/server'
 import { Skeleton } from '@/ui/skeleton'
 import { ProjectCard } from './project-card'
 
-export async function ProjectGrid({ query }: { query: string }) {
+interface ProjectGridProps {
+  query: string
+  sort?: string
+  device?: string
+  type?: string
+}
+
+export async function ProjectGrid({
+  query,
+  sort,
+  device,
+  type
+}: ProjectGridProps) {
   const supabase = await createClient()
-  const projects = await getOpenProjects(query, supabase)
+  const user = await getAuthUser(supabase)
+  const projects = await getOpenProjects(
+    query,
+    { sort, device, type },
+    supabase,
+    user?.id
+  )
 
   if (projects.length === 0) {
     return (

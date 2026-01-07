@@ -1,18 +1,19 @@
-import Link from 'next/link'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import {
+  ArrowRight,
+  Briefcase,
   Calendar,
   DollarSign,
-  ArrowRight,
   Eye,
-  Briefcase,
+  MonitorSmartphone,
   User
 } from 'lucide-react'
+import Link from 'next/link'
 
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/ui/card'
 import { Badge } from '@/ui/badge'
 import { Button } from '@/ui/button'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/ui/card'
 import { Separator } from '@/ui/separator'
 
 import { DuAn } from '@/app/_services/data-service'
@@ -40,6 +41,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
       })
     : 'N/A'
 
+  const envReqs = project.yeuCauMoiTruong as any
+  let devices: string[] = []
+
+  if (Array.isArray(envReqs?.devices)) {
+    devices = envReqs.devices
+  } else if (typeof envReqs?.devices === 'string') {
+    devices = envReqs.devices.split(',').map((d: string) => d.trim())
+  }
+
   return (
     <Card className="flex flex-col overflow-hidden transition-all hover:shadow-md">
       <CardHeader className="relative pb-3">
@@ -55,6 +65,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
               </div>
             </span>
             <CardTitle className="text-lg">
+              {project.maDuAnHienThi} -{' '}
               {project.tieuDe || 'Dự án chưa có tiêu đề'}
             </CardTitle>
             <div className="text-muted-foreground mt-1 flex flex-col gap-1 text-xs">
@@ -89,6 +100,28 @@ export function ProjectCard({ project }: ProjectCardProps) {
           {project.moTa?.replace(/<[^>]+>/g, '') ||
             'Chưa có mô tả cho dự án này.'}
         </p>
+
+        <div className="mt-4 flex items-start gap-2">
+          <MonitorSmartphone className="text-muted-foreground mt-0.5 h-4 w-4 shrink-0" />
+          <div className="flex flex-wrap gap-1">
+            {devices.length > 0 ? (
+              devices.slice(0, 3).map((device, index) => (
+                <Badge key={index} variant="outline" className="font-normal">
+                  {device}
+                </Badge>
+              ))
+            ) : (
+              <span className="text-muted-foreground text-sm">
+                Không yêu cầu thiết bị cụ thể
+              </span>
+            )}
+            {devices.length > 3 && (
+              <Badge variant="outline" className="font-normal">
+                +{devices.length - 3}
+              </Badge>
+            )}
+          </div>
+        </div>
       </CardContent>
 
       <CardFooter className="bg-muted/20 grid grid-cols-2 gap-2 p-4">

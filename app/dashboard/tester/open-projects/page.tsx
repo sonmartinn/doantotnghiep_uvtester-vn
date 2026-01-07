@@ -1,30 +1,38 @@
 import { Suspense } from 'react'
 import { ProjectGrid, ProjectsSkeleton } from './project-grid'
 import { ProjectSearch } from './project-search'
+import { ProjectFilter } from './project-filter'
 
 export const dynamic = 'force-dynamic'
 
 export default async function OpenProjectsPage({
   searchParams
 }: {
-  searchParams: { query?: string }
+  searchParams: Promise<{
+    query?: string
+    sort?: string
+    device?: string
+    type?: string
+  }>
 }) {
-  const query = (await searchParams?.query) || ''
+  const params = await searchParams
+  const query = params?.query || ''
+  const sort = params?.sort || 'latest'
+  const device = params?.device || 'all'
+  const type = params?.type || 'all'
 
   return (
-    <div className="container mx-auto space-y-8 py-8">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dự án đang mở</h1>
-          <p className="text-muted-foreground">
-            Khám phá và ứng tuyển vào các dự án kiểm thử hấp dẫn.
-          </p>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4">
+        <h1 className="text-3xl font-bold tracking-tight">Dự án đang tuyển</h1>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <ProjectSearch defaultValue={query} />
+          <ProjectFilter />
         </div>
-        <ProjectSearch defaultValue={query} />
       </div>
 
       <Suspense fallback={<ProjectsSkeleton />}>
-        <ProjectGrid query={query} />
+        <ProjectGrid query={query} sort={sort} device={device} type={type} />
       </Suspense>
     </div>
   )

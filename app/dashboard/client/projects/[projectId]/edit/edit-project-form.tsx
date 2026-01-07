@@ -69,7 +69,13 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
     })(),
 
     // JSONB Fields mapping
-    env_device: (project.yeuCauMoiTruong as any)?.devices?.join(', ') || '',
+    env_device: (() => {
+      const devices = (project.yeuCauMoiTruong as any)?.devices
+      if (Array.isArray(devices)) return devices
+      if (typeof devices === 'string')
+        return devices.split(',').map((s: string) => s.trim())
+      return []
+    })(),
     env_os: (project.yeuCauMoiTruong as any)?.os?.join(', ') || '',
     env_browser: (project.yeuCauMoiTruong as any)?.browser?.join(', ') || '',
 
@@ -120,9 +126,7 @@ export function ProjectEditForm({ project }: ProjectEditFormProps) {
         huongDanKyThuat: data.huongDanKyThuat,
         taiLieuDinhKem: data.taiLieuDinhKem,
         yeuCauMoiTruong: {
-          devices: data.env_device
-            ? data.env_device.split(',').map(s => s.trim())
-            : [],
+          devices: data.env_device || [],
           os: data.env_os ? data.env_os.split(',').map(s => s.trim()) : [],
           browser: data.env_browser
             ? data.env_browser.split(',').map(s => s.trim())

@@ -26,6 +26,7 @@ import {
 import type { ProjectValues } from '../../../../../dashboard/client/post-project/schema'
 import { Info, X, FileText, CloudUpload, Loader2 } from 'lucide-react'
 import { useState } from 'react'
+import { MultiSelect } from '@/ui/multi-select'
 
 export function Step2TechnicalSpecs({
   disabled,
@@ -289,21 +290,28 @@ export function Step2TechnicalSpecs({
                       </TooltipTrigger>
                       <TooltipContent className="bg-popover text-popover-foreground max-w-sm p-4 text-sm shadow-xl">
                         <div className="flex flex-col gap-2">
-                          Các loại thiết bị mà dự án yêu cầu (VD: Mobile, PC,
-                          Laptop... hoặc cụ thể: iPhone 13, Samsung S21,...)
-                          <p className="text-red-500">
-                            <span className="font-bold">Lưu ý:</span> Các thiết
-                            bị phải ngăn cách nhau bởi dấu phẩy ( ,)
-                          </p>
+                          Các loại thiết bị mà dự án yêu cầu
                         </div>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Thiết bị Mobile, PC, Laptop..."
-                    {...field}
+                  <MultiSelect
+                    options={[
+                      { label: 'Mobile', value: 'Mobile' },
+                      { label: 'PC', value: 'PC' },
+                      { label: 'Laptop', value: 'Laptop' },
+                      { label: 'Tablet', value: 'Tablet' },
+                      { label: 'Smart TV', value: 'Smart TV' },
+                      {
+                        label: 'Wearable (SmartWatch, SmartBand...)',
+                        value: 'Wearable'
+                      }
+                    ]}
+                    selected={field.value || []}
+                    onChange={field.onChange}
+                    placeholder="Chọn thiết bị..."
                     disabled={disabled || disabledEnv}
                   />
                 </FormControl>

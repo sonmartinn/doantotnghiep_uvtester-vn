@@ -129,8 +129,8 @@ export default function Sidebar({ role, className }: SidebarProps) {
       icon: Briefcase
     },
     {
-      name: 'Dự án đã nhận',
-      href: '/dashboard/tester/received-projects',
+      name: 'Dự án của tôi',
+      href: '/dashboard/tester/my-projects',
       icon: FileText
     },
     {

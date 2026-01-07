@@ -20,6 +20,8 @@ interface Project {
   ngayTao: string
   pendingCount?: number
   acceptedCount?: number
+  thoiHanUngTuyen?: string
+  thoiHanDuAn?: string
 }
 
 export function ProjectTable({ projects }: { projects: Project[] }) {
@@ -77,6 +79,8 @@ export function ProjectTable({ projects }: { projects: Project[] }) {
                   <ProjectActions
                     projectId={project.maDuAn}
                     currentStatus={project.trangThaiDuAn}
+                    thoiHanUngTuyen={project.thoiHanUngTuyen}
+                    thoiHanDuAn={project.thoiHanDuAn}
                   />
                 </TableCell>
               </TableRow>
