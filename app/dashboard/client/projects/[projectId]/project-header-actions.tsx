@@ -23,7 +23,8 @@ import {
   MoreHorizontal,
   PauseCircle,
   RotateCcw,
-  CheckCircle
+  CheckCircle,
+  Bug
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -113,6 +114,16 @@ export function ProjectHeaderActions({
           <Link href={`/dashboard/client/projects/${projectId}/edit`}>
             <Edit className="mr-2 h-4 w-4" />
             Chỉnh sửa
+          </Link>
+        </Button>
+
+        <Button variant="default" size="sm" asChild>
+          <Link
+            href={`/dashboard/client/projects/${projectId}/bugs-tracker`}
+            target="_blank"
+          >
+            <Bug className="mr-2 h-4 w-4" />
+            Trình quản lý lỗi
           </Link>
         </Button>
 

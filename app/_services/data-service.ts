@@ -10,6 +10,7 @@ export type DuAn = Database['public']['Tables']['DuAn']['Row']
 export type DuAnInsert = Database['public']['Tables']['DuAn']['Insert']
 export type CauHinhTesterDuAn =
   Database['public']['Tables']['CauHinhTesterDuAn']['Row']
+export type BaoCaoLoi = Database['public']['Tables']['BaoCaoLoi']['Row']
 
 /* =========================================================
    AUTH HELPERS
@@ -832,4 +833,75 @@ export async function upsertTesterProjectConfig(
     return false
   }
   return true
+}
+
+export async function getBugsByProjectId(
+  projectId: number,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<BaoCaoLoi[]> {
+  const { data, error } = await supabaseClient
+    .from('BaoCaoLoi')
+    .select('*')
+    .eq('maDuAn', projectId)
+    .order('ngayBaoCao', { ascending: false })
+
+  if (error) {
+    console.error('getBugsByProjectId error:', error)
+    return []
+  }
+  return data
+}
+
+/* =========================================================
+   FIND TESTERS (For Client)
+   ========================================================= */
+
+export type TesterProfile = NguoiDung & {
+  HoSoTester: HoSoTester | null
+}
+
+export async function getTesters(
+  query: string = '',
+  experience: string = 'all',
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<TesterProfile[]> {
+  let queryBuilder = supabaseClient
+    .from('NguoiDung')
+    .select('*, HoSoTester(*)')
+    .eq('vaiTro', 'tester')
+
+  if (query) {
+    queryBuilder = queryBuilder.ilike('hoTen', `%${query}%`)
+  }
+
+  // Filter by experience is tricky because it's in the joined table
+  // Supabase postgrest-js doesn't support deep filtering easily on joined tables with !inner unless we use .not.is('HoSoTester', null)
+  // But let's try to filter in memory for now or use !inner if strict
+  // For 'experience', we need to check HoSoTester.soNamKinhNghiem
+  if (experience !== 'all') {
+    // This requires HoSoTester to be NOT NULL and match criteria
+    // We use !inner to enforce Inner Join behavior so we can filter on it
+    queryBuilder = supabaseClient
+      .from('NguoiDung')
+      .select('*, HoSoTester!inner(*)')
+      .eq('vaiTro', 'tester')
+
+    const minYears = parseInt(experience)
+    queryBuilder = queryBuilder.gte('HoSoTester.soNamKinhNghiem', minYears)
+
+    if (query) {
+      queryBuilder = queryBuilder.ilike('hoTen', `%${query}%`)
+    }
+  }
+
+  const { data, error } = await queryBuilder
+
+  if (error) {
+    console.error('getTesters error:', error)
+    return []
+  }
+
+  // Map to exclude those without HoSoTester if using left join (default)
+  // If using !inner, they are already filtered
+  return (data as TesterProfile[]) || []
 }

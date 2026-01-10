@@ -471,12 +471,13 @@ export type Database = {
           diaChi: Json | null
           email: string
           gioiThieu: string | null
-          gioiTinh: string
-          hoTen: string
+          gioiTinh: string | null
+          hoTen: string | null
           linkLinkedIn: string | null
           maNguoiDung: string
-          ngaySinh: string
+          ngaySinh: string | null
           ngayTao: string | null
+          soDu: number | null
           thongTinThanhToan: Json | null
           vaiTro: string
         }
@@ -485,12 +486,13 @@ export type Database = {
           diaChi?: Json | null
           email: string
           gioiThieu?: string | null
-          gioiTinh: string
-          hoTen: string
+          gioiTinh?: string | null
+          hoTen?: string | null
           linkLinkedIn?: string | null
           maNguoiDung: string
-          ngaySinh: string
+          ngaySinh?: string | null
           ngayTao?: string | null
+          soDu?: number | null
           thongTinThanhToan?: Json | null
           vaiTro: string
         }
@@ -499,12 +501,13 @@ export type Database = {
           diaChi?: Json | null
           email?: string
           gioiThieu?: string | null
-          gioiTinh?: string
-          hoTen?: string
+          gioiTinh?: string | null
+          hoTen?: string | null
           linkLinkedIn?: string | null
           maNguoiDung?: string
-          ngaySinh?: string
+          ngaySinh?: string | null
           ngayTao?: string | null
+          soDu?: number | null
           thongTinThanhToan?: Json | null
           vaiTro?: string
         }
@@ -548,6 +551,47 @@ export type Database = {
           },
           {
             foreignKeyName: 'ThanhToan_maNguoiNhan_fkey'
+            columns: ['maNguoiNhan']
+            isOneToOne: false
+            referencedRelation: 'NguoiDung'
+            referencedColumns: ['maNguoiDung']
+          }
+        ]
+      }
+      ThongBao: {
+        Row: {
+          daXem: boolean | null
+          duongDan: string | null
+          loaiThongBao: string | null
+          maNguoiNhan: string
+          maThongBao: number
+          ngayTao: string | null
+          noiDung: string
+          tieuDe: string
+        }
+        Insert: {
+          daXem?: boolean | null
+          duongDan?: string | null
+          loaiThongBao?: string | null
+          maNguoiNhan: string
+          maThongBao?: number
+          ngayTao?: string | null
+          noiDung: string
+          tieuDe: string
+        }
+        Update: {
+          daXem?: boolean | null
+          duongDan?: string | null
+          loaiThongBao?: string | null
+          maNguoiNhan?: string
+          maThongBao?: number
+          ngayTao?: string | null
+          noiDung?: string
+          tieuDe?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'fk_nguoidung_manguoidung_thongbao'
             columns: ['maNguoiNhan']
             isOneToOne: false
             referencedRelation: 'NguoiDung'
@@ -644,6 +688,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_approved_bug_count: {
+        Args: {
+          du_an_id: number
+        }
+        Returns: number
+      }
       handle_project_status_transitions: {
         Args: Record<PropertyKey, never>
         Returns: undefined

@@ -25,7 +25,7 @@ import {
 import { X } from 'lucide-react'
 
 // Mock Data for Testing Settings (Dynamic Config)
-const TESTING_CONFIG = [
+export const TESTING_CONFIG = [
   {
     id: 'willing_to_travel',
     label:

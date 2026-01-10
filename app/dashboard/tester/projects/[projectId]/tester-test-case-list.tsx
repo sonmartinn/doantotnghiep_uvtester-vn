@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase/client'
 import {
   KichBan,
   KetQuaKiemThu,
+  KetQuaKiemThuInsert,
   getKichBanByDuAn,
   getKetQuaByDuAnAndUser,
   upsertKetQuaKiemThu,
@@ -39,7 +40,7 @@ import {
   Tablet,
   ArrowLeft
 } from 'lucide-react'
-import { TesterTestCaseDetail } from './tester-test-case-detail'
+import { TesterTestCaseDetail, SubmissionData } from './tester-test-case-detail'
 import { Card, CardContent, CardHeader } from '@/ui/card'
 import { Alert, AlertDescription, AlertTitle } from '@/ui/alert'
 import { RadioGroup, RadioGroupItem } from '@/ui/radio-group'
@@ -72,8 +73,6 @@ export function TesterTestCaseList({
   const [isDeviceDialogOpen, setIsDeviceDialogOpen] = useState(false)
 
   // Form state
-  const [actualResult, setActualResult] = useState('')
-  const [status, setStatus] = useState<string>('Chưa thực hiện')
   const [submitting, setSubmitting] = useState(false)
 
   const loadData = useCallback(async () => {
@@ -170,23 +169,27 @@ export function TesterTestCaseList({
       return
     }
     setSelectedTestCase(tc)
-    const existing = results[tc.maKichBan]
-    setActualResult(existing?.ketQuaThucTeChung || '')
-    setStatus(existing?.trangThaiChung || 'Chưa thực hiện')
   }
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (data: SubmissionData) => {
     if (!selectedTestCase || !selectedDevice) return
 
     setSubmitting(true)
     try {
-      const payload = {
+      const payload: KetQuaKiemThuInsert = {
         maKichBan: selectedTestCase.maKichBan,
         maNguoiThucHien: userId,
-        ketQuaThucTeChung: actualResult,
-        trangThaiChung: status,
+        trangThaiChung: data.trangThaiChung,
+        ketQuaThucTeChung: data.ketQuaThucTeChung,
+        maBaoCaoLoiLienQuan: data.maBaoCaoLoiLienQuan,
+        lyDoBiChan: data.lyDoBiChan,
+        lyDoBoQua: data.lyDoBoQua,
+        ketQuaTungBuoc: data.ketQuaTungBuoc as any,
+        thongTinBoSung: data.thongTinBoSung as any,
+        fileBangChung: data.fileBangChung as any,
+        thietBiSuDung: selectedDevice as any,
         ngayThucHien: new Date().toISOString(),
-        thietBiSuDung: selectedDevice as any // Save full device object
+        trangThaiDuyet: 'ChoDuyet'
       }
 
       await upsertKetQuaKiemThu(payload, supabase)
@@ -215,16 +218,20 @@ export function TesterTestCaseList({
 
   const getStatusBadge = (status: string | null) => {
     switch (status) {
-      case 'Pass':
-        return <Badge className="bg-green-500 hover:bg-green-600">PASS</Badge>
-      case 'Fail':
-        return <Badge className="bg-red-500 hover:bg-red-600">FAIL</Badge>
-      case 'Blocked':
+      case 'ChoDuyet':
         return (
-          <Badge className="bg-orange-500 hover:bg-orange-600">BLOCKED</Badge>
+          <Badge className="bg-yellow-500 hover:bg-yellow-600">Chờ duyệt</Badge>
         )
-      case 'Skipped':
-        return <Badge variant="secondary">SKIPPED</Badge>
+      case 'DaChapNhan':
+        return (
+          <Badge className="bg-green-500 hover:bg-green-600">
+            Đã chấp nhận
+          </Badge>
+        )
+      case 'TuChoi':
+        return <Badge className="bg-red-500 hover:bg-red-600">Từ chối</Badge>
+      case 'YeuCauChinhSua':
+        return <Badge variant="secondary">Yêu cầu chỉnh sửa</Badge>
       default:
         return <Badge variant="outline">Chưa thực hiện</Badge>
     }
@@ -252,10 +259,7 @@ export function TesterTestCaseList({
       <TesterTestCaseDetail
         testCase={selectedTestCase}
         device={selectedDevice}
-        status={status}
-        onStatusChange={setStatus}
-        actualResult={actualResult}
-        onActualResultChange={setActualResult}
+        initialData={results[selectedTestCase.maKichBan]} // Pass existing result
         submitting={submitting}
         onBack={() => setSelectedTestCase(null)}
         onSubmit={handleSubmit}
@@ -340,7 +344,7 @@ export function TesterTestCaseList({
                 <div className="text-muted-foreground text-sm font-medium">
                   {tc.maKichBanHienThi}
                 </div>
-                {getStatusBadge(result?.trangThaiChung || null)}
+                {getStatusBadge(result?.trangThaiDuyet || null)}
               </CardHeader>
               <CardContent>
                 <div className="flex items-start justify-between">
@@ -358,7 +362,7 @@ export function TesterTestCaseList({
                       className="text-primary h-auto p-0"
                       onClick={() => openUpdateDialog(tc)}
                     >
-                      Mở test case
+                      {isDone ? 'Xem và chỉnh sửa test case' : 'Mở test case'}
                     </Button>
                   </div>
 

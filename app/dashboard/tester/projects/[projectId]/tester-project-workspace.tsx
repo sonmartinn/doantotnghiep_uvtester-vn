@@ -1,4 +1,5 @@
 import { DuAn, UngTuyen } from '@/app/_services/data-service'
+import { Button } from '@/ui/button'
 import { Badge } from '@/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card'
 import { Separator } from '@/ui/separator'
@@ -7,6 +8,7 @@ import { differenceInDays, format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import {
   AlertTriangle,
+  Bug,
   CalendarClock,
   ExternalLink,
   FileText,
@@ -112,12 +114,24 @@ export function TesterProjectWorkspace({
       </div>
 
       <Tabs defaultValue="information" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
-          <TabsTrigger value="information">Thông tin dự án</TabsTrigger>
-          <TabsTrigger value="test-cases">Test Cases</TabsTrigger>
-          <TabsTrigger value="bugs">Báo lỗi</TabsTrigger>
-          <TabsTrigger value="chat">Thảo luận</TabsTrigger>
-        </TabsList>
+        <div className="flex w-full flex-col justify-between gap-4 md:flex-row md:items-center">
+          <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
+            <TabsTrigger value="information">Thông tin dự án</TabsTrigger>
+            <TabsTrigger value="test-cases">Test Cases</TabsTrigger>
+            <TabsTrigger value="chat">Thảo luận</TabsTrigger>
+          </TabsList>
+
+          <Button asChild variant="default" className="gap-2">
+            <Link
+              href={`/dashboard/tester/projects/${project.maDuAn}/bugs-tracker`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Bug className="h-4 w-4" />
+              Trình theo dõi lỗi
+            </Link>
+          </Button>
+        </div>
 
         <TabsContent value="information" className="mt-6 space-y-6">
           <div className="grid gap-6 md:grid-cols-3">
@@ -442,14 +456,6 @@ export function TesterProjectWorkspace({
             projectId={project.maDuAn}
             userId={application.maUngVien}
           />
-        </TabsContent>
-
-        <TabsContent value="bugs" className="mt-6">
-          <Card>
-            <CardContent className="text-muted-foreground flex h-[400px] items-center justify-center pt-6">
-              Chức năng Báo lỗi đang được phát triển
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="chat" className="mt-6">
