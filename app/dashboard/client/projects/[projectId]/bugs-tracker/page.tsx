@@ -10,6 +10,7 @@ import {
   getStatusColor as getProjectStatusColor,
   getStatusLabel as getProjectStatusLabel
 } from '@/lib/project-helpers'
+import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase/client'
 import { Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -33,11 +34,10 @@ import {
 import { ClientBugDetailSheet } from './client-bug-detail-sheet'
 import { ClientBugList } from './client-bug-list'
 
-export default function ClientBugsTrackerPage({
-  params
-}: {
-  params: { projectId: string }
-}) {
+export default function ClientBugsTrackerPage() {
+  const params = useParams()
+  const projectId = parseInt(params.projectId as string)
+
   const [project, setProject] = useState<DuAn | null>(null)
   const [bugs, setBugs] = useState<BaoCaoLoi[]>([])
   const [loading, setLoading] = useState(true)
@@ -45,8 +45,6 @@ export default function ClientBugsTrackerPage({
   const [selectedBug, setSelectedBug] = useState<BaoCaoLoi | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [filterStatus, setFilterStatus] = useState('all')
-
-  const projectId = parseInt(params.projectId)
 
   const fetchData = async () => {
     try {
