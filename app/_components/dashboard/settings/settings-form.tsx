@@ -39,7 +39,7 @@ import {
 } from '@/app/_components/ui/form'
 import { updatePaymentInfo, updatePassword } from './actions'
 import { User } from '@supabase/supabase-js'
-import { Database } from '@/app/_services/database.types'
+import { Database } from '@/app/_services/database-types'
 
 type NguoiDung = Database['public']['Tables']['NguoiDung']['Row']
 
