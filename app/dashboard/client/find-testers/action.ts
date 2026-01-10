@@ -32,19 +32,19 @@ export async function inviteTesterToProject(
   }
 
   // // 2. Insert notification (ThongBao)
-  // const { error: notifError } = await supabase.from('ThongBao').insert({
-  //   maNguoiNhan: testerId,
-  //   tieuDe: `Lời mời tham gia dự án: ${project.tieuDe}`,
-  //   noiDung: `Client đã mời bạn tham gia dự án "${project.tieuDe}" (${project.maDuAnHienThi}).`,
-  //   loaiThongBao: 'LoiMoiDuAn',
-  //   duongDan: `/dashboard/tester/projects/${projectId}`, // Or verify link
-  //   daXem: false
-  // })
+  const { error: notifError } = await supabase.from('ThongBao').insert({
+    maNguoiNhan: testerId,
+    tieuDe: `Lời mời tham gia dự án: ${project.tieuDe}`,
+    noiDung: `Client đã mời bạn tham gia dự án "${project.tieuDe}" (${project.maDuAnHienThi}).`,
+    loaiThongBao: 'LoiMoiDuAn',
+    duongDan: `/dashboard/tester/projects/${projectId}`, // Or verify link
+    daXem: false
+  })
 
-  // if (notifError) {
-  //   console.error('Error creating notification:', notifError)
-  //   return { success: false, error: 'Failed to create notification' }
-  // }
+  if (notifError) {
+    console.error('Error creating notification:', notifError)
+    return { success: false, error: 'Failed to create notification' }
+  }
 
   // 3. Send Email
   // Fetch tester email

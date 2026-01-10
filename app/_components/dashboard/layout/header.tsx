@@ -21,6 +21,9 @@ import { supabase } from '@/lib/supabase/client'
 import { type User } from '@supabase/supabase-js'
 import { type NguoiDung } from '@/app/_services/data-service'
 import { useNguoiDung } from '@/app/_services/queries'
+import { useNotifications } from '@/app/_hooks/use-notifications'
+import { Popover, PopoverContent, PopoverTrigger } from '@/ui/popover'
+import { NotificationList } from './notifications/notification-list'
 
 interface HeaderProps {
   user: User | null
@@ -30,6 +33,9 @@ interface HeaderProps {
 
 export default function Header({ user, profile, role }: HeaderProps) {
   const router = useRouter()
+  // const { user } = useAuthContext() // Removed
+  const { notifications, unreadCount, loading, markAllAsRead, markAsRead } =
+    useNotifications(user?.id)
   // Fetch latest profile data on client-side to ensure real-time updates
   const { data: latestProfile } = useNguoiDung(user?.id)
 
@@ -70,11 +76,27 @@ export default function Header({ user, profile, role }: HeaderProps) {
       <div className="flex items-center gap-2">
         <ThemeToggle />
 
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="size-5" />
-          <span className="border-background absolute top-2 right-2 size-2 rounded-full border-2 bg-red-600"></span>
-          <span className="sr-only">Notifications</span>
-        </Button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="size-5" />
+              {unreadCount > 0 && (
+                <span className="border-background absolute top-1.5 right-1.5 flex size-4 items-center justify-center rounded-full border-2 bg-red-600 text-[10px] font-bold text-white">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+              <span className="sr-only">Notifications</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="end">
+            <NotificationList
+              notifications={notifications}
+              loading={loading}
+              onMarkAllRead={markAllAsRead}
+              onMarkRead={markAsRead}
+            />
+          </PopoverContent>
+        </Popover>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

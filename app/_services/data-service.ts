@@ -905,3 +905,81 @@ export async function getTesters(
   // If using !inner, they are already filtered
   return (data as TesterProfile[]) || []
 }
+/* =========================================================
+   ThongBao (Notifications)
+   ========================================================= */
+
+export type ThongBao = Database['public']['Tables']['ThongBao']['Row']
+
+export async function getNotifications(
+  userId: string,
+  limit: number = 20,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<ThongBao[]> {
+  const { data, error } = await supabaseClient
+    .from('ThongBao')
+    .select('*')
+    .eq('maNguoiNhan', userId)
+    .order('ngayTao', { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    console.error('getNotifications error:', error)
+    return []
+  }
+
+  return data || []
+}
+
+export async function markNotificationAsRead(
+  notificationId: number,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<boolean> {
+  const { error } = await supabaseClient
+    .from('ThongBao')
+    .update({ daXem: true })
+    .eq('maThongBao', notificationId)
+
+  if (error) {
+    console.error('markNotificationAsRead error:', error)
+    return false
+  }
+
+  return true
+}
+
+export async function markAllNotificationsAsRead(
+  userId: string,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<boolean> {
+  const { error } = await supabaseClient
+    .from('ThongBao')
+    .update({ daXem: true })
+    .eq('maNguoiNhan', userId)
+    .eq('daXem', false)
+
+  if (error) {
+    console.error('markAllNotificationsAsRead error:', error)
+    return false
+  }
+
+  return true
+}
+
+export async function getUnreadNotificationCount(
+  userId: string,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<number> {
+  const { count, error } = await supabaseClient
+    .from('ThongBao')
+    .select('*', { count: 'exact', head: true })
+    .eq('maNguoiNhan', userId)
+    .eq('daXem', false)
+
+  if (error) {
+    console.error('getUnreadNotificationCount error:', error)
+    return 0
+  }
+
+  return count || 0
+}
