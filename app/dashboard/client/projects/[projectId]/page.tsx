@@ -58,11 +58,13 @@ export default async function ProjectDetailsPage(props: {
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="space-y-4">
           <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight">
+            <div className="flex items-start gap-3">
+              <h1 className="text-3xl leading-tight font-bold tracking-tight">
                 {project.tieuDe}
               </h1>
-              <Badge className={getStatusColor(project.trangThaiDuAn)}>
+              <Badge
+                className={`${getStatusColor(project.trangThaiDuAn)} mt-1 shrink-0`}
+              >
                 {getStatusLabel(project.trangThaiDuAn)}
               </Badge>
             </div>
@@ -114,8 +116,10 @@ export default async function ProjectDetailsPage(props: {
         </div>
 
         <ProjectHeaderActions
-          projectId={projectId}
+          projectId={project.maDuAn}
           status={project.trangThaiDuAn}
+          projectCode={project.maDuAnHienThi || ''}
+          projectTitle={project.tieuDe}
         />
       </div>
 

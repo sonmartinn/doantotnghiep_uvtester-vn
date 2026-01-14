@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { TesterTestCaseList } from './tester-test-case-list'
+import { ChatSheet } from './chat/chat-sheet'
 
 interface TesterProjectWorkspaceProps {
   project: DuAn
@@ -118,19 +119,32 @@ export function TesterProjectWorkspace({
           <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
             <TabsTrigger value="information">Thông tin dự án</TabsTrigger>
             <TabsTrigger value="test-cases">Test Cases</TabsTrigger>
-            <TabsTrigger value="chat">Thảo luận</TabsTrigger>
+            <TabsTrigger value="feedback">Feedback</TabsTrigger>
           </TabsList>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="default" className="gap-2">
+              <Link
+                href={`/dashboard/tester/projects/${project.maDuAn}/bugs-tracker`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Bug className="h-4 w-4" />
+                Trình theo dõi lỗi
+              </Link>
+            </Button>
 
-          <Button asChild variant="default" className="gap-2">
-            <Link
-              href={`/dashboard/tester/projects/${project.maDuAn}/bugs-tracker`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Bug className="h-4 w-4" />
-              Trình theo dõi lỗi
-            </Link>
-          </Button>
+            {['DangTienHanh', 'ChoQuyetToan'].includes(
+              project.trangThaiDuAn
+            ) && (
+              <ChatSheet
+                projectId={project.maDuAn}
+                userId={application.maUngVien}
+                projectOwnerId={project.maNguoiTao}
+                projectCode={project.maDuAnHienThi}
+                projectTitle={project.tieuDe}
+              />
+            )}
+          </div>
         </div>
 
         <TabsContent value="information" className="mt-6 space-y-6">
@@ -458,10 +472,10 @@ export function TesterProjectWorkspace({
           />
         </TabsContent>
 
-        <TabsContent value="chat" className="mt-6">
+        <TabsContent value="feedback" className="mt-6">
           <Card>
             <CardContent className="text-muted-foreground flex h-[400px] items-center justify-center pt-6">
-              Chức năng Thảo luận đang được phát triển
+              Chức năng Feedback đang được phát triển
             </CardContent>
           </Card>
         </TabsContent>

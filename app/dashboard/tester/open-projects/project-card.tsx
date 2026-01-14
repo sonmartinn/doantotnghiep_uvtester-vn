@@ -20,9 +20,10 @@ import { DuAn } from '@/app/_services/data-service'
 
 interface ProjectCardProps {
   project: DuAn & { soLuongUngVien?: number }
+  matchScore?: number
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project, matchScore }: ProjectCardProps) {
   // Format budget with dots for thousands
   // Cast payment config to expected type
   const paymentConfig = project.cauHinhThanhToan as {
@@ -50,10 +51,28 @@ export function ProjectCard({ project }: ProjectCardProps) {
     devices = envReqs.devices.split(',').map((d: string) => d.trim())
   }
 
+  // Determine Badge Color
+  let matchBadge = null
+  if (matchScore !== undefined) {
+    const isHighMatch = matchScore >= 80
+    matchBadge = (
+      <Badge
+        variant="secondary"
+        className={`mr-2 shrink-0 whitespace-nowrap text-white ${
+          isHighMatch
+            ? 'bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400'
+            : 'bg-amber-600 hover:bg-amber-700 dark:bg-amber-900/50 dark:text-amber-400'
+        }`}
+      >
+        ✨ {matchScore}% Phù hợp
+      </Badge>
+    )
+  }
+
   return (
     <Card className="flex flex-col overflow-hidden transition-all hover:shadow-md">
-      <CardHeader className="relative pb-3">
-        <div className="flex items-start justify-between pt-2">
+      <CardHeader className="relative mt-2">
+        <div className="flex items-start justify-between pt-3">
           <div className="min-w-0 space-y-1">
             <span className="text-muted-foreground flex items-center gap-1 text-xs font-medium">
               <User className="h-3 w-3" />{' '}
@@ -79,12 +98,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
               </span>
             </div>
           </div>
-          <Badge
-            variant="secondary"
-            className="absolute top-2 right-2 shrink-0 bg-green-600 whitespace-nowrap text-white hover:bg-green-700 dark:bg-green-900/30 dark:text-green-400"
-          >
-            Đang tuyển
-          </Badge>
+          <div className="absolute top-1 right-2 flex w-full items-center justify-end gap-8">
+            {matchBadge}
+            <Badge
+              variant="secondary"
+              className="shrink-0 bg-green-600 whitespace-nowrap text-white hover:bg-green-700 dark:bg-green-900/30 dark:text-green-400"
+            >
+              Đang tuyển
+            </Badge>
+          </div>
         </div>
       </CardHeader>
 

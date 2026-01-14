@@ -32,14 +32,20 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { useUpdateDuAn } from '@/app/_services/queries'
 
+import { ClientChatSheet } from './chat/client-chat-sheet'
+
 interface ProjectHeaderActionsProps {
   projectId: number
   status: string
+  projectCode: string
+  projectTitle: string
 }
 
 export function ProjectHeaderActions({
   projectId,
-  status
+  status,
+  projectCode,
+  projectTitle
 }: ProjectHeaderActionsProps) {
   const router = useRouter()
   const updateDuAnMutation = useUpdateDuAn()
@@ -106,10 +112,18 @@ export function ProjectHeaderActions({
   }
 
   // if (isClosed) return null
+  const showChat = ['DangTienHanh', 'ChoQuyetToan'].includes(status)
 
   return (
     <>
       <div className="flex gap-2">
+        {showChat && (
+          <ClientChatSheet
+            projectId={projectId}
+            projectCode={projectCode}
+            projectTitle={projectTitle}
+          />
+        )}
         <Button variant="outline" size="sm" asChild>
           <Link href={`/dashboard/client/projects/${projectId}/edit`}>
             <Edit className="mr-2 h-4 w-4" />

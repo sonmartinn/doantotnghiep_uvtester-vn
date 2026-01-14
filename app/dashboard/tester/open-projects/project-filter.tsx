@@ -9,12 +9,31 @@ import {
 } from '@/ui/select'
 import { Button } from '@/ui/button'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { X } from 'lucide-react'
+import { X, Sparkles, ListFilter } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from '@/ui/popover'
 
 export function ProjectFilter() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
+
+  const currentSort = searchParams.get('sort')
+  const isBestMatch = currentSort === 'best-match'
+
+  const toggleBestMatch = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (isBestMatch) {
+      params.delete('sort') // toggle off -> default
+    } else {
+      params.set('sort', 'best-match')
+    }
+
+    // Preserve query if it exists
+    if (searchParams.get('query')) {
+      params.set('query', searchParams.get('query')!)
+    }
+    router.replace(`${pathname}?${params.toString()}`)
+  }
 
   const handleDeviceChange = (value: string) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -60,54 +79,114 @@ export function ProjectFilter() {
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {/* Device Filter */}
-      <Select
-        value={searchParams.get('device') || 'all'}
-        onValueChange={handleDeviceChange}
+      {/* AI Match Button - Prominent */}
+      <Button
+        variant={isBestMatch ? 'default' : 'outline'}
+        onClick={toggleBestMatch}
+        className={`border-dashed transition-all ${
+          isBestMatch
+            ? 'border-transparent bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md hover:from-emerald-600 hover:to-teal-600'
+            : 'border-emerald-500/50 bg-emerald-50/50 text-emerald-700 hover:bg-emerald-100 dark:text-emerald-400 dark:hover:bg-emerald-900/20'
+        }`}
       >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Lọc theo thiết bị" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Tất cả thiết bị</SelectItem>
-          <SelectItem value="Mobile">Mobile</SelectItem>
-          <SelectItem value="PC">PC</SelectItem>
-          <SelectItem value="Laptop">Laptop</SelectItem>
-          <SelectItem value="Tablet">Tablet</SelectItem>
-          <SelectItem value="Smart TV">Smart TV</SelectItem>
-          <SelectItem value="Wearable">Wearable</SelectItem>
-        </SelectContent>
-      </Select>
+        <Sparkles
+          className={`mr-2 h-4 w-4 ${isBestMatch ? 'animate-pulse' : ''}`}
+        />
+        {isBestMatch ? 'Đang lọc theo AI Match' : 'Phù hợp nhất với tôi'}
+      </Button>
 
-      {/* Type Filter */}
-      <Select
-        value={searchParams.get('type') || 'all'}
-        onValueChange={handleTypeChange}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Loại dự án" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Tất cả loại</SelectItem>
-          <SelectItem value="Exploratory">Exploratory</SelectItem>
-          <SelectItem value="TestCase">TestCase</SelectItem>
-        </SelectContent>
-      </Select>
+      {/* Unified Filter Popover */}
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="border-dashed">
+            <ListFilter className="mr-2 h-4 w-4" />
+            Bộ lọc & Sắp xếp
+            {(searchParams.get('device') ||
+              searchParams.get('type') ||
+              (currentSort && currentSort !== 'latest')) && (
+              <span className="ml-1 rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] leading-none font-semibold text-slate-900">
+                {
+                  [
+                    searchParams.get('device'),
+                    searchParams.get('type'),
+                    currentSort && currentSort !== 'latest' ? 'sort' : null
+                  ].filter(Boolean).length
+                }
+              </span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[280px] p-4" align="start">
+          <div className="grid gap-4">
+            <div className="space-y-2">
+              <h4 className="leading-none font-medium">Bộ lọc tìm kiếm</h4>
+              <p className="text-muted-foreground text-sm">
+                Tùy chỉnh tiêu chí hiển thị dự án
+              </p>
+            </div>
 
-      {/* Sort */}
-      <Select
-        value={searchParams.get('sort') || 'latest'}
-        onValueChange={handleSortChange}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Sắp xếp" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="latest">Mới nhất</SelectItem>
-          <SelectItem value="price_asc">Giá: Thấp đến Cao</SelectItem>
-          <SelectItem value="price_desc">Giá: Cao đến Thấp</SelectItem>
-        </SelectContent>
-      </Select>
+            <div className="grid gap-2">
+              {/* Device Filter */}
+              <div className="grid grid-cols-3 items-center gap-4">
+                <span className="text-sm">Thiết bị</span>
+                <Select
+                  value={searchParams.get('device') || 'all'}
+                  onValueChange={handleDeviceChange}
+                >
+                  <SelectTrigger className="col-span-2 h-8">
+                    <SelectValue placeholder="Tất cả" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả thiết bị</SelectItem>
+                    <SelectItem value="Mobile">Mobile</SelectItem>
+                    <SelectItem value="PC">PC</SelectItem>
+                    <SelectItem value="Laptop">Laptop</SelectItem>
+                    <SelectItem value="Tablet">Tablet</SelectItem>
+                    <SelectItem value="Smart TV">Smart TV</SelectItem>
+                    <SelectItem value="Wearable">Wearable</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Type Filter */}
+              <div className="grid grid-cols-3 items-center gap-4">
+                <span className="text-sm">Loại</span>
+                <Select
+                  value={searchParams.get('type') || 'all'}
+                  onValueChange={handleTypeChange}
+                >
+                  <SelectTrigger className="col-span-2 h-8">
+                    <SelectValue placeholder="Tất cả" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả loại</SelectItem>
+                    <SelectItem value="Exploratory">Exploratory</SelectItem>
+                    <SelectItem value="TestCase">TestCase</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Sort */}
+              <div className="grid grid-cols-3 items-center gap-4">
+                <span className="text-sm">Sắp xếp</span>
+                <Select
+                  value={isBestMatch ? '' : currentSort || 'latest'}
+                  onValueChange={handleSortChange}
+                >
+                  <SelectTrigger className="col-span-2 h-8">
+                    <SelectValue placeholder="Mới nhất" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="latest">Mới nhất</SelectItem>
+                    <SelectItem value="price_asc">Giá: Thấp-Cao</SelectItem>
+                    <SelectItem value="price_desc">Giá: Cao-Thấp</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
 
       {(searchParams.get('device') ||
         searchParams.get('sort') ||

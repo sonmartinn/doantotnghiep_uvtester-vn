@@ -2,6 +2,12 @@ import { Suspense } from 'react'
 import { ProjectGrid, ProjectsSkeleton } from './project-grid'
 import { ProjectSearch } from './project-search'
 import { ProjectFilter } from './project-filter'
+import {
+  getAuthUser,
+  getHoSoTester,
+  getNguoiDung
+} from '@/app/_services/data-service'
+import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,6 +27,22 @@ export default async function OpenProjectsPage({
   const device = params?.device || 'all'
   const type = params?.type || 'all'
 
+  const supabase = await createClient()
+  const user = await getAuthUser(supabase)
+
+  let profile = null
+  if (user) {
+    const hoso = await getHoSoTester(user.id, supabase)
+    const userData = await getNguoiDung(user.id, supabase)
+
+    if (hoso) {
+      profile = {
+        ...hoso,
+        gioiThieu: userData?.gioiThieu || ''
+      }
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
@@ -32,7 +54,13 @@ export default async function OpenProjectsPage({
       </div>
 
       <Suspense fallback={<ProjectsSkeleton />}>
-        <ProjectGrid query={query} sort={sort} device={device} type={type} />
+        <ProjectGrid
+          query={query}
+          sort={sort}
+          device={device}
+          type={type}
+          profile={profile}
+        />
       </Suspense>
     </div>
   )

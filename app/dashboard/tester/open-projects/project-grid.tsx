@@ -1,31 +1,51 @@
-import { getAuthUser, getOpenProjects } from '@/app/_services/data-service'
+import { getOpenProjects } from '@/app/_services/data-service'
 import { createClient } from '@/lib/supabase/server'
 import { Skeleton } from '@/ui/skeleton'
 import { ProjectCard } from './project-card'
+import {
+  calculateMatchScore,
+  TesterProfileExtended
+} from '@/app/_services/matching-algorithm'
 
 interface ProjectGridProps {
   query: string
   sort?: string
   device?: string
   type?: string
+  profile: TesterProfileExtended | null
 }
 
 export async function ProjectGrid({
   query,
   sort,
   device,
-  type
+  type,
+  profile
 }: ProjectGridProps) {
   const supabase = await createClient()
-  const user = await getAuthUser(supabase)
   const projects = await getOpenProjects(
     query,
     { sort, device, type },
     supabase,
-    user?.id
+    profile?.maNguoiDung
   )
 
-  if (projects.length === 0) {
+  // Calculate scores
+  const projectsWithScore = projects.map(p => ({
+    ...p,
+    matchScore: calculateMatchScore(profile, p)
+  }))
+
+  // Apply 'best-match' sorting if requested
+  // Note: getOpenProjects handles SQL sorting, but for 'best-match', we sort in memory
+  // because the calculation is complex and uses profile data.
+  // Ideally, getOpenProjects should ignore 'best-match' in SQL sort or fallback to latest.
+  let displayProjects = projectsWithScore
+  if (sort === 'best-match') {
+    displayProjects.sort((a, b) => b.matchScore - a.matchScore)
+  }
+
+  if (displayProjects.length === 0) {
     return (
       <div className="text-muted-foreground flex min-h-[400px] flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
         <p className="text-lg font-medium">Không tìm thấy dự án phù hợp</p>
@@ -36,8 +56,12 @@ export async function ProjectGrid({
 
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {projects.map(project => (
-        <ProjectCard key={project.maDuAn} project={project} />
+      {displayProjects.map(project => (
+        <ProjectCard
+          key={project.maDuAn}
+          project={project}
+          matchScore={project.matchScore}
+        />
       ))}
     </div>
   )
