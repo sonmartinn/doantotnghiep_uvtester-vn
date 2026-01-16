@@ -1,9 +1,9 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { getAuthUser } from '@/app/_services/data-service'
+import { getAuthUser, createNotification } from '@/app/_services/data-service'
 
 export async function applyToProject(
   projectId: number,
@@ -19,7 +19,7 @@ export async function applyToProject(
   // 1. Validate project status
   const { data: project, error: projectError } = await supabase
     .from('DuAn')
-    .select('trangThaiDuAn, cauHoiKhaoSat')
+    .select('trangThaiDuAn, cauHoiKhaoSat, maNguoiTao, tieuDe')
     .eq('maDuAn', projectId)
     .single()
 
@@ -57,7 +57,24 @@ export async function applyToProject(
     throw new Error('Có lỗi xảy ra khi gửi đơn ứng tuyển. Vui lòng thử lại.')
   }
 
-  // 4. Revalidate and Redirect
+  // 4. Notify Client
+  if (project.maNguoiTao) {
+    const adminSupabase = createAdminClient()
+    await createNotification(
+      {
+        maNguoiNhan: project.maNguoiTao,
+        tieuDe: 'Ứng viên mới',
+        noiDung: `Dự án "${project.tieuDe || '...'}" có ứng viên mới ứng tuyển.`,
+        loaiThongBao: 'UngTuyen',
+        duongDan: `/dashboard/client/projects/${projectId}`,
+        daXem: false,
+        ngayTao: new Date().toISOString()
+      },
+      adminSupabase
+    )
+  }
+
+  // 5. Revalidate and Redirect
   revalidatePath(`/dashboard/tester/open-projects`)
   revalidatePath(`/dashboard/tester/projects/${projectId}`) // For when we have the detail page
 

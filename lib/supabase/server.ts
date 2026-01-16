@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { Database } from '@/app/_services/database-types'
 
@@ -24,6 +25,21 @@ export async function createClient() {
             // user sessions.
           }
         }
+      }
+    }
+  )
+}
+
+export function createAdminClient() {
+  return createSupabaseClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    // Note: It's better to store this as SUPABASE_SERVICE_ROLE_KEY without NEXT_PUBLIC_ prefix
+    // to prevent accidental exposure to client-side bundles.
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
       }
     }
   )

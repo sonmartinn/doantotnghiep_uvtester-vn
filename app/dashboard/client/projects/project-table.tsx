@@ -6,6 +6,7 @@ import {
   TableHeader,
   TableRow
 } from '@/ui/table'
+import Link from 'next/link'
 import { Badge } from '@/ui/badge'
 import { ProjectActions } from './project-actions'
 import { getStatusColor, getStatusLabel } from '@/lib/project-helpers'
@@ -48,7 +49,12 @@ export function ProjectTable({ projects }: { projects: Project[] }) {
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
-                    <span className="font-medium">{project.tieuDe}</span>
+                    <Link
+                      href={`/dashboard/client/projects/${project.maDuAn}`}
+                      className="hover:underline"
+                    >
+                      <span className="font-medium">{project.tieuDe}</span>
+                    </Link>
                     <span className="text-muted-foreground text-xs">
                       {project.loaiDuAn}
                     </span>

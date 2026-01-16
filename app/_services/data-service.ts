@@ -972,6 +972,7 @@ export async function getTesters(
    ========================================================= */
 
 export type ThongBao = Database['public']['Tables']['ThongBao']['Row']
+export type ThongBaoInsert = Database['public']['Tables']['ThongBao']['Insert']
 
 export async function getNotifications(
   userId: string,
@@ -1044,4 +1045,21 @@ export async function getUnreadNotificationCount(
   }
 
   return count || 0
+}
+
+export async function createNotification(
+  notification: ThongBaoInsert,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<ThongBao | null> {
+  const { data, error } = await supabaseClient
+    .from('ThongBao')
+    .insert(notification)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('createNotification error:', error)
+    return null
+  }
+  return data
 }
