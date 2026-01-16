@@ -1,6 +1,12 @@
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD
+  }
+})
 
 export const sendInvitationEmail = async (
   to: string,
@@ -8,15 +14,15 @@ export const sendInvitationEmail = async (
   projectName: string,
   projectLink: string
 ) => {
-  if (!process.env.RESEND_API_KEY) {
-    console.warn('RESEND_API_KEY is not set. Email not sent.')
-    return { success: false, error: 'Resend API key missing' }
+  if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+    console.warn('GMAIL credentials are not set. Email not sent.')
+    return { success: false, error: 'Gmail credentials missing' }
   }
 
   try {
-    const { data, error } = await resend.emails.send({
-      from: 'UVTester <onboarding@resend.dev>', // Update this with verified domain later
-      to: [to],
+    const info = await transporter.sendMail({
+      from: `"UVTester" <${process.env.GMAIL_USER}>`,
+      to: to,
       subject: `[UVTester] Bạn nhận được lời mời tham gia dự án "${projectName}"`,
       html: `
         <h1>Lời mời tham gia dự án</h1>
@@ -28,12 +34,8 @@ export const sendInvitationEmail = async (
       `
     })
 
-    if (error) {
-      console.error('Resend error:', error)
-      return { success: false, error }
-    }
-
-    return { success: true, data }
+    console.log('Email sent: %s', info.messageId)
+    return { success: true, data: info }
   } catch (error) {
     console.error('Send email exception:', error)
     return { success: false, error }

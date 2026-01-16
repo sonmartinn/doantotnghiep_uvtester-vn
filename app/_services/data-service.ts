@@ -814,16 +814,18 @@ export async function getTesterProjectConfig(
 }
 
 export async function upsertTesterProjectConfig(
-  maDuAn: number,
-  maNguoiDung: string,
-  config: { thietBiDuocChon?: any },
+  configIndex: {
+    maDuAn: number
+    maNguoiDung: string
+    thietBiDuocChon: any
+  },
   supabaseClient: SupabaseClient<Database> = supabase
 ): Promise<boolean> {
   const { error } = await supabaseClient.from('CauHinhTesterDuAn').upsert(
     {
-      maDuAn,
-      maNguoiDung,
-      thietBiDuocChon: config.thietBiDuocChon
+      maDuAn: configIndex.maDuAn,
+      maNguoiDung: configIndex.maNguoiDung,
+      thietBiDuocChon: configIndex.thietBiDuocChon
     },
     { onConflict: 'maDuAn, maNguoiDung' }
   )
@@ -833,6 +835,66 @@ export async function upsertTesterProjectConfig(
     return false
   }
   return true
+}
+
+/* =========================================================
+   DASHBOARD STATS
+   ========================================================= */
+
+export async function getClientDashboardStats(
+  userId: string,
+  supabaseClient: SupabaseClient<Database> = supabase
+) {
+  // 1. Projects Stats
+  const { data: projects, error: projectsError } = await supabaseClient
+    .from('DuAn')
+    .select('maDuAn, trangThaiDuAn')
+    .eq('maNguoiTao', userId)
+    .in('trangThaiDuAn', ['DangTuyen', 'DangTienHanh', 'ChoQuyetToan'])
+
+  if (projectsError) {
+    console.error('getClientDashboardStats projects error:', projectsError)
+  }
+
+  const activeProjects = projects?.length || 0
+
+  const runningProjects =
+    projects?.filter(p => p.trangThaiDuAn === 'DangTienHanh').length || 0
+
+  // 2. Tester Stats
+  // Get projects that are 'DangTuyen' or 'DangTienHanh' (where testers might be active/hired)
+  // Or should it be all active projects? User said "ở các dự án có trạng thái 'DangTuyen' và 'DangTienHanh' của client này"
+  const relevantProjectIds =
+    projects
+      ?.filter(p => ['DangTuyen', 'DangTienHanh'].includes(p.trangThaiDuAn))
+      .map(p => p.maDuAn) || []
+
+  let hiredTesters = 0
+  let pendingTesters = 0
+
+  if (relevantProjectIds.length > 0) {
+    const { data: applications, error: appError } = await supabaseClient
+      .from('UngTuyen')
+      .select('trangThaiUngTuyen')
+      .in('maDuAn', relevantProjectIds)
+      .in('trangThaiUngTuyen', ['DaDuyet', 'ChoDuyet'])
+
+    if (appError) {
+      console.error('getClientDashboardStats applications error:', appError)
+    }
+
+    hiredTesters =
+      applications?.filter(a => a.trangThaiUngTuyen === 'DaDuyet').length || 0
+    pendingTesters =
+      applications?.filter(a => a.trangThaiUngTuyen === 'ChoDuyet').length || 0
+  }
+
+  return {
+    activeProjects,
+    runningProjects,
+    hiredTesters,
+    pendingTesters
+  }
 }
 
 export async function getBugsByProjectId(

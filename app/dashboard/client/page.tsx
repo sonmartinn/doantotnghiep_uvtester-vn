@@ -1,4 +1,7 @@
-import { getFullUser } from '@/app/_services/data-service'
+import {
+  getFullUser,
+  getClientDashboardStats
+} from '@/app/_services/data-service'
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card'
 import { FileText, Users, AlertCircle, CheckCircle } from 'lucide-react'
@@ -10,6 +13,15 @@ import { PostProjectButton } from '@/app/_components/dashboard/action-buttons'
 export default async function ClientDashboard() {
   const supabase = await createClient()
   const { nguoiDung, hoSo } = await getFullUser(supabase)
+
+  const stats = nguoiDung
+    ? await getClientDashboardStats(nguoiDung.maNguoiDung, supabase)
+    : {
+        activeProjects: 0,
+        runningProjects: 0,
+        hiredTesters: 0,
+        pendingTesters: 0
+      }
 
   return (
     <div className="flex flex-col gap-6">
@@ -31,9 +43,9 @@ export default async function ClientDashboard() {
             <FileText className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2</div>
+            <div className="text-2xl font-bold">{stats.activeProjects}</div>
             <p className="text-muted-foreground text-xs">
-              1 dự án sắp hoàn thành
+              {stats.runningProjects} dự án đang tiến hành
             </p>
           </CardContent>
         </Card>
@@ -45,16 +57,16 @@ export default async function ClientDashboard() {
             <Users className="text-muted-foreground h-4 w-4" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">5</div>
+            <div className="text-2xl font-bold">{stats.hiredTesters}</div>
             <p className="text-muted-foreground text-xs">
-              +2 tester mới tuần này
+              {stats.pendingTesters} tester chờ duyệt
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Lỗi chưa xử lý
+              Báo cáo lỗi chưa xử lý
             </CardTitle>
             <AlertCircle className="text-muted-foreground h-4 w-4" />
           </CardHeader>

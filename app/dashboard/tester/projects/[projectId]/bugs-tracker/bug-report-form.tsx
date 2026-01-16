@@ -132,6 +132,31 @@ export function BugReportForm({
 
       if (error) throw error
 
+      // 4. Create Notification for Client
+      try {
+        const { data: projectData } = await supabase
+          .from('DuAn')
+          .select('maNguoiTao, tieuDe')
+          .eq('maDuAn', projectId)
+          .single()
+
+        if (projectData) {
+          await supabase.from('ThongBao').insert({
+            maNguoiNhan: projectData.maNguoiTao,
+            tieuDe: 'Báo cáo lỗi mới',
+            noiDung: `Dự án ${projectData.tieuDe || projectCode} có báo cáo lỗi mới: ${
+              data.tieuDe
+            }`,
+            loaiThongBao: 'LoiMoiDuAn',
+            duongDan: `/dashboard/client/projects/${projectId}/bugs-tracker`,
+            daXem: false
+          })
+        }
+      } catch (notifyError) {
+        console.error('Error creating notification:', notifyError)
+        // Don't fail the main action if notification fails
+      }
+
       toast.success('Báo lỗi thành công!')
       form.reset()
       setFiles([])

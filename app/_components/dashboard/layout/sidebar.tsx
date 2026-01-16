@@ -177,11 +177,6 @@ export default function Sidebar({ role, className }: SidebarProps) {
       icon: Users
     },
     {
-      name: 'Tin nhắn',
-      href: '/dashboard/client/messages',
-      icon: MessageSquare
-    },
-    {
       name: 'Hồ sơ',
       href: '/dashboard/client/profile',
       icon: UserCog
