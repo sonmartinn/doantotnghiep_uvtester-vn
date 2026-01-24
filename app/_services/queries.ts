@@ -337,3 +337,14 @@ export function useUpdateUngTuyen() {
     }
   })
 }
+
+export function useAllTestResultsByProject(maDuAn: number) {
+  return useQuery({
+    queryKey: ['all_test_results', maDuAn],
+    queryFn: async () => {
+      const { getAllTestResultsByProject } = await import('./data-service')
+      return getAllTestResultsByProject(maDuAn)
+    },
+    enabled: !!maDuAn
+  })
+}

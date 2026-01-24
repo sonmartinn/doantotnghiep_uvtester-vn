@@ -17,6 +17,7 @@ import { CandidatesTab } from './candidates-tab'
 import { OverviewTab } from './overview-tab'
 import { ProjectHeaderActions } from './project-header-actions'
 import { TestCasesTab } from './test-cases-tab'
+import { TestResultsTab } from './test-results-tab'
 
 export default async function ProjectDetailsPage(props: {
   params: Promise<{ projectId: string }>
@@ -129,6 +130,7 @@ export default async function ProjectDetailsPage(props: {
           <TabsTrigger value="overview">Tổng quan</TabsTrigger>
           <TabsTrigger value="candidates">Ứng viên</TabsTrigger>
           <TabsTrigger value="test-cases">Kịch bản kiểm thử</TabsTrigger>
+          <TabsTrigger value="test-results">Kết quả kiểm thử</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -141,6 +143,10 @@ export default async function ProjectDetailsPage(props: {
 
         <TabsContent value="test-cases">
           <TestCasesTab projectId={projectId} project={project} />
+        </TabsContent>
+
+        <TabsContent value="test-results">
+          <TestResultsTab projectId={projectId} />
         </TabsContent>
       </Tabs>
     </div>

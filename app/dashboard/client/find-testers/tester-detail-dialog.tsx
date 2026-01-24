@@ -28,7 +28,7 @@ interface TesterDetailDialogProps {
   isOpen: boolean
   onClose: () => void
   tester: TesterProfile
-  onInvite: () => void
+  onInvite?: () => void
 }
 
 export function TesterDetailDialog({
@@ -68,6 +68,8 @@ export function TesterDetailDialog({
     )
     return parts.length > 0 ? parts.join(', ') : JSON.stringify(addr)
   }
+
+  /* ... (removed renderSurveyAnswers) ... */
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -344,14 +346,16 @@ export function TesterDetailDialog({
           <Button variant="outline" onClick={onClose}>
             Đóng
           </Button>
-          <Button
-            onClick={() => {
-              onInvite()
-              onClose()
-            }}
-          >
-            Mời tham gia dự án
-          </Button>
+          {onInvite && (
+            <Button
+              onClick={() => {
+                onInvite()
+                onClose()
+              }}
+            >
+              Mời tham gia dự án
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>

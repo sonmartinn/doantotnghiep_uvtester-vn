@@ -59,44 +59,23 @@ export default function PostProjectWizardPage() {
   const form = useForm<ProjectValues>({
     resolver: zodResolver(projectSchema) as Resolver<ProjectValues>,
     defaultValues: {
-      tieuDe: 'Dự án Kiểm thử App Mobile Banking 2025',
+      tieuDe: '',
       loaiDuAn: 'Exploratory',
-      moTa: 'Chúng tôi cần kiểm thử tính năng chuyển khoản nhanh 24/7 và thanh toán QR code trên ứng dụng mobile banking mới. Yêu cầu tập trung vào trải nghiệm người dùng và độ ổn định.',
-      soLuongCanTuyen: 10,
-      nganSach: 5000000,
-      huongDanTruyCap:
-        'Truy cập https://test-app.bank.com. Tài khoản: testuser/password123. Tải file APK tại đây.',
-      huongDanKyThuat:
-        'Sử dụng Charles Proxy để bắt API log. Chú ý các endpoint /transfer và /payment.',
-      env_device: ['Mobile', 'PC', 'Laptop'],
-      env_os: 'iOS 15, Android 12',
-      env_browser: 'Safari, Chrome Mobile',
-      scope_in: [
-        { value: 'Chức năng chuyển khoản' },
-        { value: 'Quét QR Code' },
-        { value: 'Lịch sử giao dịch' }
-      ],
-      scope_out: [
-        { value: 'Màn hình cài đặt' },
-        { value: 'Đổi mật khẩu' },
-        { value: 'Các vấn đề về UI/UX' }
-      ],
-      cauHoiKhaoSat: [
-        {
-          question: 'Bạn đã từng sử dụng app ngân hàng nào chưa?',
-          type: 'Radio',
-          options: ['Rồi', 'Chưa']
-        },
-        {
-          question: 'Thiết bị chính bạn đang dùng là gì?',
-          type: 'Text',
-          options: []
-        }
-      ],
-      pay_perBug: 50000,
-      pay_perCompletion: 200000,
-      thoiHanUngTuyen: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-      thoiHanDuAn: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+      moTa: '',
+      soLuongCanTuyen: 1,
+      nganSach: 0,
+      huongDanTruyCap: '',
+      huongDanKyThuat: '',
+      env_device: [],
+      env_os: '',
+      env_browser: '',
+      scope_in: [],
+      scope_out: [],
+      cauHoiKhaoSat: [],
+      pay_perBug: 0,
+      pay_perCompletion: 0,
+      thoiHanUngTuyen: new Date(),
+      thoiHanDuAn: new Date()
     },
     mode: 'onChange'
   })

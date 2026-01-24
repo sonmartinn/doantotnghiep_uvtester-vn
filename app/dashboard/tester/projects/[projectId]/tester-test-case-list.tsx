@@ -400,9 +400,9 @@ export function TesterTestCaseList({
                     setSelectedDevice(dev)
                     // Persist to DB
                     upsertTesterProjectConfig(
-                      projectId,
-                      userId,
                       {
+                        maDuAn: projectId,
+                        maNguoiDung: userId,
                         thietBiDuocChon: dev
                       },
                       supabase
@@ -420,9 +420,9 @@ export function TesterTestCaseList({
                       setSelectedDevice(dev)
                       // Persist to DB
                       upsertTesterProjectConfig(
-                        projectId,
-                        userId,
                         {
+                          maDuAn: projectId,
+                          maNguoiDung: userId,
                           thietBiDuocChon: dev
                         },
                         supabase

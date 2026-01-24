@@ -79,6 +79,7 @@ const profileSchema = z.object({
     .object({
       willing_to_travel: z.boolean().optional(),
       willing_to_payment_testing: z.boolean().optional(),
+      linh_vuc_lam_viec: z.array(z.string()).optional(),
       testing_fields: z.array(z.string()).optional(),
       programming_languages: z.array(z.string()).optional(),
       app_types: z.array(z.string()).optional(),

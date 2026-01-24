@@ -41,6 +41,21 @@ export const TESTING_CONFIG = [
     options: []
   },
   {
+    id: 'linh_vuc_lam_viec',
+    label: 'Lĩnh vực làm việc chuyên môn của bạn là gì?',
+    type: 'multi-select',
+    options: [
+      'E-commerce',
+      'Banking',
+      'Retail',
+      'Healthcare',
+      'Education',
+      'Gaming',
+      'Không có',
+      'Khác'
+    ]
+  },
+  {
     id: 'testing_fields',
     label: 'Loại hình kiểm thử mà đã từng làm?',
     type: 'multi-select',
@@ -49,6 +64,8 @@ export const TESTING_CONFIG = [
       'Test case testing',
       'Usability testing',
       'Performance testing',
+      'Functional testing',
+      'API testing',
       'Security testing',
       'Không có',
       'Tất cả loại hình trên',

@@ -125,6 +125,13 @@ export function TestCaseForm({
           soThuTu: nextIdSuffix - 1 // 0-based index
         })
         toast.success('Thêm kịch bản thành công!')
+        form.reset({
+          tieuDe: '',
+          dieuKienTienQuyet: '',
+          yeuCauBangChung: '',
+          cacBuocThucHien: [{ buoc: 1, moTa: '', ketQuaMongDoi: '' }],
+          cauHoiBoSung: []
+        })
       }
       onSuccess()
     } catch (error: any) {

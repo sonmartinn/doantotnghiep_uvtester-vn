@@ -674,10 +674,14 @@ export type UngTuyen = Database['public']['Tables']['UngTuyen']['Row']
 export async function getUngTuyenByDuAn(
   maDuAn: number,
   supabaseClient: SupabaseClient<Database> = supabase
-): Promise<(UngTuyen & { UngVien: NguoiDung | null })[]> {
+): Promise<
+  (UngTuyen & {
+    UngVien: (NguoiDung & { HoSoTester: HoSoTester | null }) | null
+  })[]
+> {
   const { data, error } = await supabaseClient
     .from('UngTuyen')
-    .select('*, UngVien:NguoiDung(*)')
+    .select('*, UngVien:NguoiDung(*, HoSoTester(*))')
     .eq('maDuAn', maDuAn)
 
   if (error) {
@@ -766,6 +770,24 @@ export async function getKetQuaByDuAnAndUser(
 
   if (error) {
     console.error('getKetQuaByDuAnAndUser error:', error)
+    return []
+  }
+
+  // @ts-ignore
+  return data
+}
+
+export async function getAllTestResultsByProject(
+  maDuAn: number,
+  supabaseClient: SupabaseClient<Database> = supabase
+): Promise<KetQuaKiemThu[]> {
+  const { data, error } = await supabaseClient
+    .from('KetQuaKiemThu')
+    .select('*, KichBanKiemThu!inner(maDuAn)')
+    .eq('KichBanKiemThu.maDuAn', maDuAn)
+
+  if (error) {
+    console.error('getAllTestResultsByProject error:', error)
     return []
   }
 

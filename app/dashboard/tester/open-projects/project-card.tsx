@@ -127,7 +127,7 @@ export function ProjectCard({ project, matchScore }: ProjectCardProps) {
           <MonitorSmartphone className="text-muted-foreground mt-0.5 h-4 w-4 shrink-0" />
           <div className="flex flex-wrap gap-1">
             {devices.length > 0 ? (
-              devices.slice(0, 3).map((device, index) => (
+              devices.map((device, index) => (
                 <Badge key={index} variant="outline" className="font-normal">
                   {device}
                 </Badge>
@@ -136,11 +136,6 @@ export function ProjectCard({ project, matchScore }: ProjectCardProps) {
               <span className="text-muted-foreground text-sm">
                 Không yêu cầu thiết bị cụ thể
               </span>
-            )}
-            {devices.length > 3 && (
-              <Badge variant="outline" className="font-normal">
-                +{devices.length - 3}
-              </Badge>
             )}
           </div>
         </div>
