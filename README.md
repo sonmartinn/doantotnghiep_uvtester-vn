@@ -1,23 +1,17 @@
 # UVTester - Crowdsourced Software Testing SaaS Platform
 
 [![Deployed on Vercel](https://img.shields.io/badge/Vercel-Deployed-black?logo=vercel)](https://vercel.com)
-[![Next.js](https://img.shields.io/badge/Next.js-15_(App_Router)-000000?logo=nextdotjs)](https://nextjs.org/)
+[![Next.js](<https://img.shields.io/badge/Next.js-15_(App_Router)-000000?logo=nextdotjs>)](https://nextjs.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-BaaS-3ECF8E?logo=supabase)](https://supabase.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict_Mode-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?logo=tailwindcss)](https://tailwindcss.com/)
 
-> **Graduation Thesis in Information Technology**  
-> **Topic:** Building the UVTester Crowdsourced Testing Management Platform for Freelancers, Integrating AI-Powered Smart Project Matching and Realtime Bug Reporting  
-> **Author:** Le Trung Son (Class 21T2 - Student ID: 21115053120241)  
-> **Supervisor:** Dr. Nguyen Tan Thuan — University of Technology and Education, The University of Danang  
-
----
-
 ## 📌 Product Overview
 
-**UVTester** is a cloud-based **Crowdsourced Software Testing (SaaS)** platform designed to bridge the gap between software development teams (**Clients**) and distributed freelance QA engineers (**Testers**). 
+**UVTester** is a cloud-based **Crowdsourced Software Testing (SaaS)** platform designed to bridge the gap between software development teams (**Clients**) and distributed freelance QA engineers (**Testers**).
 
 The platform optimizes and automates the complete end-to-end testing cycle:
+
 - **For Businesses / Clients:** Rapidly recruit qualified testers with target hardware configurations, manage test suites with visual drag-and-drop, track live execution matrices, and triage verified bug reports.
 - **For Freelance Testers:** Discover matching testing gigs via an intelligent recommendation algorithm, execute structured test cases, report reproducible defects with rich media evidence, and communicate in real time.
 
@@ -49,6 +43,7 @@ The platform optimizes and automates the complete end-to-end testing cycle:
 ## 🚀 Core SaaS Features
 
 ### 1. Client Management Portal
+
 - **Guided Project Creation:** Multi-step wizard configuring testing objectives, in/out-of-scope boundaries, required hardware environments, milestones, and custom screening questionnaires.
 - **Interactive Test Suite Builder:** Construct detailed test cases with prerequisite steps, and effortlessly reorder execution flow using intuitive drag-and-drop (`@dnd-kit`).
 - **Applicant Evaluation:** Screen candidate submissions, review applicant device inventory, and evaluate survey responses with one-click approvals.
@@ -57,6 +52,7 @@ The platform optimizes and automates the complete end-to-end testing cycle:
 - **Direct Talent Outreach:** Search the tester pool by verified hardware and testing skillsets, sending direct automated project invitation emails.
 
 ### 2. Freelancer Testing Workspace
+
 - **Intelligent Project Matching:** Algorithmic ranking (**Best Match**) calculating compatibility scores across device ownership, operating systems, and domain experience.
 - **Seamless Application:** Select matching personal devices and complete project-specific qualification surveys.
 - **Dedicated Test Runner:** Step-by-step test execution interface, recording discrete step statuses (`Pass`, `Fail`, `Blocked`, `Skip`), hardware identifiers, and proof attachments.
@@ -64,6 +60,7 @@ The platform optimizes and automates the complete end-to-end testing cycle:
 - **Profile & Device Registry:** Manage personal professional experience, testing specialties, device specs (PC, Mobile, Tablet, OS), and track profile completeness.
 
 ### 3. Platform & Infrastructure Services
+
 - **Real-Time Collaboration:** Project-wide group discussions and private 1-on-1 channels between Client and individual Testers powered by Supabase Realtime (WebSocket) with secure attachment sharing.
 - **In-App Notification Engine:** Instant alerts for application statuses, new defect reports, and review acceptances.
 - **Automated Lifecycle Transitions:** Scheduled serverless cron jobs automating status lifecycles based on deadlines (e.g., Application Deadline -> `In Progress`, Testing Deadline -> `Pending Payout`).
@@ -75,17 +72,17 @@ The platform optimizes and automates the complete end-to-end testing cycle:
 
 The application is architected as a modern serverless SaaS deployed on **Vercel** with **Supabase Cloud**:
 
-| Layer | Technologies & Cloud Services |
-| :--- | :--- |
-| **Hosting & Edge Delivery** | **Vercel** (Global Edge Network, Serverless Functions, Automatic CI/CD) |
-| **Automation & Scheduling** | **Vercel Cron Jobs** (Daily lifecycle status transition endpoints) |
-| **Application Layer** | **Next.js 15 (App Router)** with Server Components & Server Actions |
-| **Type Safety & Validation** | **TypeScript** (Strict mode) & **Zod** schema validation |
-| **UI & Experience** | **Tailwind CSS v4**, **Radix UI**, **Lucide Icons**, **Sonner Toasts**, **TipTap Editor** |
-| **Database & Auth** | **Supabase PostgreSQL** with **Row-Level Security (RLS)** & **Supabase Auth** |
-| **Realtime Engine & Storage** | **Supabase Realtime (WebSocket)** & **Supabase Storage Buckets** |
-| **Caching & Server State** | **TanStack React Query v5** (Optimistic updates & background cache revalidation) |
-| **Transactional Messaging** | **Nodemailer SMTP Gateway** (Direct invitation & system emails) |
+| Layer                         | Technologies & Cloud Services                                                             |
+| :---------------------------- | :---------------------------------------------------------------------------------------- |
+| **Hosting & Edge Delivery**   | **Vercel** (Global Edge Network, Serverless Functions, Automatic CI/CD)                   |
+| **Automation & Scheduling**   | **Vercel Cron Jobs** (Daily lifecycle status transition endpoints)                        |
+| **Application Layer**         | **Next.js 15 (App Router)** with Server Components & Server Actions                       |
+| **Type Safety & Validation**  | **TypeScript** (Strict mode) & **Zod** schema validation                                  |
+| **UI & Experience**           | **Tailwind CSS v4**, **Radix UI**, **Lucide Icons**, **Sonner Toasts**, **TipTap Editor** |
+| **Database & Auth**           | **Supabase PostgreSQL** with **Row-Level Security (RLS)** & **Supabase Auth**             |
+| **Realtime Engine & Storage** | **Supabase Realtime (WebSocket)** & **Supabase Storage Buckets**                          |
+| **Caching & Server State**    | **TanStack React Query v5** (Optimistic updates & background cache revalidation)          |
+| **Transactional Messaging**   | **Nodemailer SMTP Gateway** (Direct invitation & system emails)                           |
 
 ---
 
@@ -115,6 +112,6 @@ doantotnghiep_uvtester-vn/
 
 This project is submitted as an undergraduate Graduation Thesis in Information Technology at the **University of Technology and Education — The University of Danang**.
 
-- **Author:** Le Trung Son  
-- **Academic Supervisor:** Dr. Nguyen Tan Thuan  
+- **Author:** Le Trung Son
+- **Academic Supervisor:** Dr. Nguyen Tan Thuan
 - **Year:** 2026
